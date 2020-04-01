@@ -1,0 +1,3 @@
+*.pyc
+createsite/*.pyc
+createsite/robot_site/*.pyc
