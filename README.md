@@ -85,6 +85,8 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
 
 ## step 1: launch the robot
 
+1. at turtlebot node, modify `ROS_HOSTNAME` and `TURTLEBOT3_MODEL` in `startup_launch.sh` if network address changes
+
 
 
 ## step 2: run services
