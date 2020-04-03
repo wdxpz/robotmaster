@@ -76,7 +76,7 @@ def deleteRemoteSite(sitename):
 
 
 def createRemoteSite(sitename, description):
-    logging.info('utils: create site {} in remote db'.format(sitename))
+    logger.info('utils: create site {} in remote db'.format(sitename))
     jpgfile = 'map.jpg'
     jpgfilepath = os.path.join(config.Map_Dir, sitename, jpgfile)
 

@@ -23,8 +23,8 @@ def index(request):
         desc = request.query_params['desc']
     forced = True
     if 'forced' in request.query_params.keys():
-        if request.query_params['forced'].lower not in ['y, yes, true']:
-            force = False
+        if request.query_params['forced'].lower() not in ['y', 'yes', 'true']:
+            forced = False
 
 
     try:

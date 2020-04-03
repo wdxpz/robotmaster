@@ -1,0 +1,13 @@
+[Unit]
+Description=Auto-start Navigation Service 
+Wants=start_robot.service
+
+[Service]
+Type=idle
+User=waffle
+Group=waffle
+ExecStart=/home/waffle/start_robot/startup_navigation.sh
+Restart=on-failure
+
+[Install] 
+WantedBy=multi-user.target
