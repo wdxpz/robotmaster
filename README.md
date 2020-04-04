@@ -1,4 +1,4 @@
-# Requirements
+# 1. Requirements
 
 ## for robotmaster service on turtlebot master
 
@@ -12,7 +12,7 @@
 
 
 
-# Start robot at boot on turtlebot node
+# 2. Launch single robot at boot on turtlebot node
 
 ## Preparation: update firewaree and software on turtlebot
 
@@ -80,12 +80,69 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
 4. auto start navigation on turtlebot
 
    **disable this, for the experimental sh and service not succeeded, and it should be launched at master node to control different robots and set their initial positions**
+   
+   
 
-# Usages
+# 3. Multirobot Navigation
 
-## step 1: launch the robot
+## Launch Multirobot
+1. [video tutourial and demo project](https://www.theconstructsim.com/zh-hans/ros-qa-130-how-to-launch-multiple-robots-in-gazebo-simulator/)
 
-1. at turtlebot node, modify `ROS_HOSTNAME` and `TURTLEBOT3_MODEL` in `startup_launch.sh` if network address changes
+2. on turtlebot node
+
+   ```
+   $ ROS_NAMESPACE=tb3_0 roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:="tb3_0" set_lidar_frame_id:="tb3_0/base_scan"
+   ```
+
+   which will add ros nodes:
+
+   ```
+   /tb3_0/turtlebot3_core
+   /tb3_0/turtlebot3_diagnostics
+   /tb3_0/turtlebot3_lds
+   ```
+
+   
+
+3. on remote master node (optional)
+
+   ```
+   $ ROS_NAMESPACE=tb3_0 roslaunch turtlebot3_bringup turtlebot3_remote.launch multi_robot_name:=tb3_0
+   ```
+
+   which will launch node:
+
+   ```
+   /tb3_0/robot_state_publisher
+   ```
+
+## Navigate Multirobot
+
+1. Tutourial by Constructsim
+    * [video lesion: Multiple Robots navigation in Gazebo](https://www.youtube.com/watch?v=es_rQmlgndQ)
+    * [demo source codes for simulation, including launch, acml and movebased](https://answers.ros.org/question/41433/multiple-robots-simulation-and-navigation/)
+    * project: turtlebot3_nps [github](https://github.com/bbingham-nps/turtlebot3_nps), [launch, acml, teleop](https://wiki.nps.edu/pages/viewpage.action?pageId=1163463250), [move_base](https://wiki.nps.edu/display/MRC/Multirobot+move_base)
+    
+2. Implementation
+
+    see project [multirobot_nav](https://github.com/wdxpz/multirobot_nav)
+
+
+# 4. Usages
+
+## step 1: launch multi robots
+
+1. at turtlebot node, modify `robot_id`, `ROS_HOSTNAME` and `TURTLEBOT3_MODEL` in `startup_launch.sh` if network address changes
+2. ** TODO: auto launch still has some error to auto launch at boot **
+
+##  step 2: start multiple robot navigation
+
+```
+#refer to ros project "multirobot_nav"
+roslaunch multirobot_nv start.launch
+```
+
+
 
 
 
