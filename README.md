@@ -30,7 +30,7 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
 1. auto start turtlebot3 at boot on turtlebot
 
    ```
-   $ rosrun robot_upstart install turtlebot3_bringup/launch/turtlebot3_robot.launch --job start_robot --user waffle --master http://192.168.3.89:11311 -- logdir /home/waffle/logs --symlink
+   $ rosrun robot_upstart install turtlebot3_bringup/launch/turtlebot3_robot.launch --job start_robot --user waffle --interface wlan0 --master http://192.168.3.89:11311 --logdir /home/waffle/logs --symlink
    $ sudo systemctl daemon-reload
    $ sudo systemctl start start_robot
    ```
@@ -88,7 +88,7 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
 ## Launch Multirobot
 1. [video tutourial and demo project](https://www.theconstructsim.com/zh-hans/ros-qa-130-how-to-launch-multiple-robots-in-gazebo-simulator/)
 
-2. on turtlebot node
+2. manually launch each turtlebot node
 
    ```
    $ ROS_NAMESPACE=tb3_0 roslaunch turtlebot3_bringup turtlebot3_robot.launch multi_robot_name:="tb3_0" set_lidar_frame_id:="tb3_0/base_scan"
@@ -102,21 +102,52 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
    /tb3_0/turtlebot3_lds
    ```
 
-   
+3. auto launch each trutlebot node
 
-3. on remote master node (optional)
+   * create  or copy ros project `launch_robot` under `~/catkin_ws/src/`
 
-   ```
-   $ ROS_NAMESPACE=tb3_0 roslaunch turtlebot3_bringup turtlebot3_remote.launch multi_robot_name:=tb3_0
-   ```
+     ```
+     $ catkin_create_pkg launch_robot
+     $ mkdir launch
+     $ nano launch_robot_with_name.launch
+     
+     #edit launch_robot_with_name.launch
+     <?xml version="1.0"?>
+     <launch>
+       <include file="$(find turtlebot3_bringup)/launch/turtlebot3_robot.launch">          
+       <arg name="multi_robot_name" value="$(env ROS_NAMESPACE)" />
+       <arg name="set_lidar_frame_id" value="$(env ROS_NAMESPACE)/base_scan" />
+       </include>
+     </launch>
+     ```
 
-   which will launch node:
+     **NOTE: it is crisis to set ROS_NAMESPACE in /usr/sbin/start_robot-start**
 
-   ```
-   /tb3_0/robot_state_publisher
-   ```
+   * create robot_upstart job
 
-## Navigate Multirobot
+     ```
+     $ rosrun robot_upstart install launch_robot/launch/launch_robot_with_name.launch --job start_robot --user waffle --interface wlan0 --master http://192.168.3.89:11311 --logdir /home/waffle/logs --symlink
+     ```
+
+     
+
+   * `sudo nano /usr/sbin/start_robot-start`
+
+     ```
+     #add or modify after:
+     export ROS_MASTER_URI=http://192.168.3.89:11311
+     export ROS_HOME=${ROS_HOME:=$(echo ~waffle)/.ros}
+     export ROS_LOG_DIR=$log_path
+     export ROS_HOSTNAME=192.168.3.90
+     export ROS_NAMESPACE="tb3_0"
+     ```
+
+     
+
+   * `sudo systemctl daemon-reload && sudo systemctl start start_robot`
+
+4. Navigate Multirobot
+
 
 1. Tutourial by Constructsim
     * [video lesion: Multiple Robots navigation in Gazebo](https://www.youtube.com/watch?v=es_rQmlgndQ)
