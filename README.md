@@ -126,12 +126,12 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
    * create robot_upstart job
 
      ```
-     $ rosrun robot_upstart install launch_robot/launch/launch_robot_with_name.launch --job start_robot --user waffle --interface wlan0 --master http://192.168.3.89:11311 --logdir /home/waffle/logs --symlink
+     $ rosrun robot_upstart install launch_robot/launch/launch_robot_with_name.launch --job startrobot --user waffle --interface wlan0 --master http://192.168.3.89:11311 --logdir /home/waffle/logs --symlink
      ```
 
      
 
-   * `sudo nano /usr/sbin/start_robot-start`
+   * `sudo nano /usr/sbin/startrobot-start`
 
      ```
      #add or modify after:
@@ -140,11 +140,26 @@ refer to [section 3 How to update](https://discourse.ros.org/t/announcing-turtle
      export ROS_LOG_DIR=$log_path
      export ROS_HOSTNAME=192.168.3.90
      export ROS_NAMESPACE="tb3_0"
+     
+     #add para --wait in the line:
+     # Punch it.
+     setuidgid waffle roslaunch --wait &LAUNCH_FILENAME &
+     PID=$!
      ```
 
      
 
-   * `sudo systemctl daemon-reload && sudo systemctl start start_robot`
+   * `sudo nano /lib/systemd/system/startrobot.service`
+
+     ```
+     #add this line under [Install]
+     #WantedBy=multi-user.target
+     WantedBy=network-online.target
+     ```
+
+     
+
+   * sudo systemctl daemon-reload && sudo systemctl start startrobot`
 
 4. Navigate Multirobot
 
