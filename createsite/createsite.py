@@ -4,18 +4,18 @@ import os
 import getopt
 
 
-
-from utils import checkServer, deleteRemoteSite, createRemoteSite, saveMap
+from map_utils import deleteRemoteSite, createRemoteSite, saveMap
 
 import config
-from logger import logger
+from utils.turtlebot import checkRobotNode
+from utils.logger import logger
 
 Status_Succeeded = 0
 Stauts_File_Existed = 10
 Status_Failed = 20
 
 def createSite(sitename='test', description='', forced=True):
-    if not checkServer('map_server', timeout=1):
+    if not checkRobotNode('map_server', timeout=1):
         logger.error('createsite exit! Not found map_server')
         raise Exception('not found map_server from rosnode')
         return Status_Failed

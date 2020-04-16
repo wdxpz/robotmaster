@@ -21,5 +21,6 @@ from createsite import views
 urlpatterns = [
     # url(r'^createsite', views.index, name='index'),
     url(r'^createsite/', include('createsite.urls')),
+    url(r'^launch/', include('launch_nav.urls')),
     url(r'^admin/', admin.site.urls),
 ]

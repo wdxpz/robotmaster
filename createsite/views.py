@@ -2,12 +2,11 @@
 from __future__ import unicode_literals
 
 from django.shortcuts import render
-from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from robot_site.createsite import createSite, Status_Succeeded, Stauts_File_Existed, Status_Failed
+from createsite import createSite, Status_Succeeded, Stauts_File_Existed, Status_Failed
 
 from logger import logger
 

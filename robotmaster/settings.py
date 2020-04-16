@@ -25,13 +25,14 @@ SECRET_KEY = 'm4z4!qy5c#4vn76v=qc7e$&-4%n$cnzn-har^9p)h9*&c)%x*@'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
 INSTALLED_APPS = [
     'createsite',
+    'launch_nav',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
