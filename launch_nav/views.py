@@ -24,11 +24,11 @@ def index(request):
         'inspection_id': 103,
         'robots': {
             'robot_id1': {
-                'org_pos': "(1.4, 10.5)",
+                'org_pos': "(1.4, 10.5, 0)",
                 'subtask': "[(1, x1, y1), (2, x2, y2), ...]"
             },
             'robot_id2': {
-                'org_pos': "(5.5, 12.5)",
+                'org_pos': "(5.5, 12.5, 0)",
                 'subtask': "[(3, x3, y3), (4, x4, y4), ...]"
             },
             'robot_id3': {

@@ -43,25 +43,22 @@ class Turtlebot_Launcher():
     def buildLaunchFile(self):
         org_launch_file = os.path.join(expanduser("~"), ROS_Launch_File)
 
-        ff = '/home/sw/startall_a.launch'
+        org_launch_file = org_launch_file.split('.')[0]+'_new.launch'
 
-        tree = ET.parse(f)
-
+        tree = ET.parse(org_launch_file)
         root = tree.getroot()
 
-        newnode = copy.deepcopy(root[0])
+        robot_ids = self.robots.keys()
+        for id in robot_ids:
+            newnode = copy.deepcopy(root[0])
+            newnode.getchildren()[0].attrib['value'] = id
+            newnode.getchildren()[1].attrib['name'] = id + "_init_x"
+            newnode.getchildren()[1].attrib['value'] = self.robots[id]['org_pos'][0]
+            newnode.getchildren()[1].attrib['name'] = id + "_init_y"
+            newnode.getchildren()[2].attrib['value'] = self.robots[id]['org_pos'][1]
+            newnode.getchildren()[1].attrib['name'] = id + "_init_a"
+            newnode.getchildren()[3].attrib['value'] = self.robots[id]['org_pos'][2]
+            root.append(newnode)
+        root.remove(root[0])
 
-        newnode.getchildren()[0].attrib['value'] = 'tb3_1'
-        newnode.getchildren()[1].attrib['value'] = '1.0'
-        newnode.getchildren()[2].attrib['value'] = '2.0'
-        newnode.getchildren()[3].attrib['value'] = '3.0'
-
-        root.append(newnode)
-
-        print(root[1].attrib['file'])
-
-        print(root[1].getchildren()[0].attrib['name'])
-
-        print(root[1].getchildren()[0].attrib['value'])
-
-        tree.write(ff)
+        tree.write(org_launch_file)
