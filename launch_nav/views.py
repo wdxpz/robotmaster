@@ -22,6 +22,7 @@ def index(request):
     the post data should be in json and like:
     {
         'inspection_id': 103,
+        'site_id': 'office12'
         'robots': {
             'robot_id1': {
                 'org_pos': "(1.4, 10.5, 0)",
@@ -40,13 +41,14 @@ def index(request):
     """
     if request.method == 'POST':
         data = request.data
-        if 'inspection_id' not in data.keys() or 'robots' not in data.keys() :
-            msg = 'key inspection_id and robots required'
+        if 'inspection_id' not in data.keys() or 'site_id' not in data.keys() or 'robots' not in data.keys() :
+            msg = 'key inspection_id, site_id and robots required'
             logger.info(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
         try: 
             inspection_id = int(data['inspection_id'])
+            site_id = str(data['site_id'])
             robots = data['robots']
             robot_ids = robots.keys()
             for id in robot_ids:  

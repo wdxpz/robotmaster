@@ -12,9 +12,12 @@ Map_Dir = os.path.join(BASE_DIR, 'map')
 Create_Site_Endoint = 'http://www.bestfly.ml:8000/site/'
 Delete_Site_Endpoint = 'http://www.bestfly.ml:8000/site/'
 
+#robot launch configuration
+ROS_Launch_File = 'catkin_ws/src/multirobot_nv/launch/startall.launch'
+Launch_Max_Try = 5
 
 #robot navigation configuration
-ROS_Launch_File = 'catkin_ws/src/multirobot_nv/launch/startall.launch'
+
 Holding_Step_Time = 20
 Holding_Time_Variance = 1
 Circle_Rotate_Steps = 4

@@ -1,28 +1,42 @@
 import os
 import copy
+import time
 import xml.etree.ElementTree as ET
 from os.path import expanduser
 
-from config import ROS_Launch_File
-from utils.turtlebot import checkRobotNode
+from config import ROS_Launch_File, Map_Dir, Launch_Max_Try
+from utils.turtlebot import checkRobotNode, shell_cmd
 from utils.logger import logger
 logger.name= __name__
 
 class Turtlebot_Launcher():
-    def __init__(self, robots):
+    def __init__(self, siteid, robots):
         self.robots = robots
+        self.siteid = siteid
 
     def launch(self):
-        pass
+        logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
+        launched = False
+        for i in range(Launch_Max_Try):
+            try:
+                self.checkRobotsOn()
+                self.startNavigation()
+                time.sleep(5)
+                self.checkRobotsNav()
+                launched = True
+                break
+            except Exception as e:
+                msg = 'Faild of trial no. {} to launch navigation in multirobot mode'
+                logger.info(msg)
 
-    def checkRobotOnline(self, robot_id):
-        robot_core_topic = '/{}/turtlebot3_core'.format(robot_id)
-        if not checkRobotNode(robot_core_topic, timeout=3):
-            msg = 'robot: {} not online!'.format(robot_id)
+        if launched:
+            logger.info('Succeed in trial no. {} to launch navigation in multirobot mode!'.format(i+1))
+        else:
+            msg = 'Faild to launch navigation in multirobot mode after {} trials'.format(Launch_Max_Try)
             logger.error(msg)
             raise Exception(msg)
-    
-    def checkRobotsOnline(self):
+
+     def checkRobotsOn(self):
         robot_ids = self.robots.keys()
         failed_robots = []
         try:
@@ -35,10 +49,49 @@ class Turtlebot_Launcher():
             msg = 'robot: {} not online!'.format(failed_robots)
             logger.error(msg)
             raise Exception(msg)
+    
+    def checkRobotsNav(self):
+        robot_ids = self.robots.keys()
+        failed_robots = []
+        try:
+            for id in robot_ids:
+                self.checkRobotNavOK(robot_id)
+        except:
+            failed_robots.append(id)
 
+        if len(failed_robots) != 0:
+            msg = 'robot: {} navigation not ready!'.format(failed_robots)
+            logger.error(msg)
+            raise Exception(msg)
+
+    def checkRobotOnline(self, robot_id):
+        robot_core_node = '/{}/turtlebot3_core'.format(robot_id)
+        logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
+        if not checkRobotNode(robot_core_node, timeout=3):
+            msg = 'robot: {} not online!'.format(robot_id)
+            logger.error(msg)
+            raise Exception(msg)
+        logger.info('robot {} is online!'.format(robot_id))
+    
+   
+
+    def checkRobotNavOK(self, robot_id):
+        robot_movebase_node = '/{}/move_base'.format(robot_id)
+        logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
+        if not checkRobotNode(robot_core_node, timeout=3):
+            msg = 'robot: {} navigation not ready, not found ()!'.format(robot_id, robot_movebase_node)
+            logger.error(msg)
+            raise Exception(msg)
+        logger.info('robot {} navigation is ready!'.format(robot_id))
     
     def startNavigation(self):
-        pass
+        launch_file = self.buildLaunchFile()
+        launch_file = launch_file.split('/')[-1]
+        commnad = ['roslaunch', 'multirobot_nv',  launch_file]
+        if shell_cmd(command, shell=Flase) != 0:
+            msg = 'launch navigation failed, command [{}] not wokr!'.format(commnad)
+            logger.error(msg)
+            raise Exception(msg)
 
     def buildLaunchFile(self):
         org_launch_file = os.path.join(expanduser("~"), ROS_Launch_File)
@@ -48,9 +101,15 @@ class Turtlebot_Launcher():
         tree = ET.parse(org_launch_file)
         root = tree.getroot()
 
+        #modify mapserver node
+        map_path = os.path.join(Map_Dir, self.siteid, 'map.yaml')
+        mapnode = root[0]
+        mapnode.getchildren()[0].attrib['value'] = map_path
+        
+        #create robot nodes
         robot_ids = self.robots.keys()
         for id in robot_ids:
-            newnode = copy.deepcopy(root[0])
+            newnode = copy.deepcopy(root[1])
             newnode.getchildren()[0].attrib['value'] = id
             newnode.getchildren()[1].attrib['name'] = id + "_init_x"
             newnode.getchildren()[1].attrib['value'] = self.robots[id]['org_pos'][0]
@@ -59,6 +118,7 @@ class Turtlebot_Launcher():
             newnode.getchildren()[1].attrib['name'] = id + "_init_a"
             newnode.getchildren()[3].attrib['value'] = self.robots[id]['org_pos'][2]
             root.append(newnode)
-        root.remove(root[0])
+        #delete the template robot node
+        root.remove(root[1])
 
         tree.write(org_launch_file)
