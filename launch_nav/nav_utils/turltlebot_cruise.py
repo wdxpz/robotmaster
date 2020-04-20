@@ -258,6 +258,11 @@ def runRoute(inspectionid, robotid, route):
             success = navigator.goto(pt['position'], pt['quaternion'])
             if not success:
                 logger.warn("Failed to reach No. {} pose".format(pt_num))
+                #send miss event to tsdb
+                if index <= route_len:
+                    cur_time =  datetime.datetime.utcnow()
+                    dbhelper.writeMissPointEvent(inspection_id, robot_id, pt_num)
+                    
                 continue
             logger.info("Reached No. {} pose".format(pt_num))
 

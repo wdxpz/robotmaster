@@ -89,6 +89,21 @@ class DBHelper():
         except:
             logger.error('[nav_utils] DB operation: write robot position record error!')
 
+    def writeMissPointEvent(self, inspection_id, robot_id, time, waypoint_no):
+        records = []
+        body = copy.deepcopy(body_event)
+        body['time'] = time
+        body['tags']['robot_id'] = robot_id
+        body['tags']['inspection_id'] = inspection_id
+        body['tags']['waypoint_no'] = waypoint_no
+        body['fields']['enter_time'] = -1
+        body['fields']['leave_time'] = -1
+
+        try:
+            self.client.write_points(records)
+        except:
+            logger.error('[nav_utils] DB operation: write robot position record error!')
+
     def emptyEvents(self):
         self.client.query("delete from {};".format(config.Table_Name_Robot_Event))
 
