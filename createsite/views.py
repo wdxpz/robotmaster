@@ -25,7 +25,6 @@ def index(request):
         if request.query_params['forced'].lower() not in ['y', 'yes', 'true']:
             forced = False
 
-
     try:
         code = createSite(name, desc, forced)
         if code == Status_Succeeded:

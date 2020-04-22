@@ -23,44 +23,55 @@
 
 3. see how-to in [README.md](https://github.com/wdxpz/turtlebot_master_scripts/blob/master/README.md) of project [turtlebot_master_scripts](https://github.com/wdxpz/turtlebot_master_scripts)
 
-4. launch anvigation
+4. manually launch anvigation
 
    ```
    roslaunch multirobot_nv startall.launch
    ```
 
-   
 
-## robotmaster Service
 
-1. at turtlebot node, modify `robot_id`, `ROS_HOSTNAME` and `TURTLEBOT3_MODEL` in `startup_launch.sh` if network address changes
-2. ** TODO: auto launch still has some error to auto launch at boot **
 
-##  step 2: start multiple robot navigation
+5. launch by robotmaster service, see it in next section
+
+# robotmaster Service
+
+## 1. createsit service
+
+export current map data from map_server node, and save it in local, convert it to jpg and create the site with specific name and the jpg in server.
+
+**required**: map_server node activated by slam or navigation
 
 ```
-#refer to ros project "multirobot_nav"
-roslaunch multirobot_nv start.launch
+GET http://server_ip:port/createsite/?name=test2&desc=beijing office floor 233&forced=n
+
+#name(required) : site name, string
+#desc (optional): site description, string
+#forced (optional): forced to overwrited existed site, string(['y', 'yes', 'true'] for True )
+```
+## 2. launch navigation service
+
+```
+POST http://server_ip:port/launch/
+
+json body:
+{
+        'inspection_id': 103,
+        'site_id': 'office12'
+        'robots': {
+            'robot_id1': {
+                'org_pos': "(1.4, 10.5, 0)",
+                'subtask': "[(1, x1, y1), (2, x2, y2), ...]"
+            },
+            'robot_id2': {
+                'org_pos': "(5.5, 12.5, 0)",
+                'subtask': "[(3, x3, y3), (4, x4, y4), ...]"
+            },
+            'robot_id3': {
+                ...
+            },
+            ...
+        }
+    }
 ```
 
-
-
-
-
-## step 2: run services
-
-### 1. robotmaster service
-
-1. createsite
-
-   ```
-   GET http://server_ip:port/createsite/?name=test2&desc=beijing office floor 233&forced=n
-   
-   #name(required) : site name, string
-   #desc (optional): site description, string
-   #forced (optional): forced to overwrited existed site, string(['y', 'yes', 'true'] for True )
-   ```
-
-   
-
-2. : 

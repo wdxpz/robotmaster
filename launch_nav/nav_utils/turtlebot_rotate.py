@@ -7,11 +7,14 @@ logger.name == __name__
 PI = 3.1415926535897
 
 class RotateController():
-    def __init__(self):
+    def __init__(self, insepcction_id, robot_id):
 
         rospy.on_shutdown(self.shutdown)
 
-        self.rotate_pub = rospy.Publisher('/tb3_0/cmd_vel', Twist, queue_size=10)
+        self.inspection_id = insepcction_id
+        self.robot_id = robot_id
+        self.msg_head = 'inspection:{} robot: {}: [runRoute]: '.format(inspection_id,robot_id)
+        self.rotate_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_id), Twist, queue_size=10)
         self.rotate_command =Twist()
 
     def rotate(self, angle=90, speed=90, clockwise=True, stay=2):
@@ -54,12 +57,12 @@ class RotateController():
         #     current_angle = angular_speed*(t1-t0)
 
         #Forcing our robot to stop
-        logger.info('send stop rotate command')
+        logger.info(self.msg_head + 'send stop rotate command')
         self.rotate_command.angular.z = 0
         self.rotate_pub.publish(self.rotate_command)
 
     def shutdown(self):
-        logger.info("Stop")
+        logger.info(self.msg_head + 'stopped rotation')
         rospy.sleep(1)
 
 if __name__ == '__main__':

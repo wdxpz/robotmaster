@@ -29,16 +29,20 @@ from utils.logger import logger
 logger.name = __name__
 
 class GoToPose():
-    def __init__(self):
+    def __init__(self, inspecion_id, robot_id):
 
+        self.inspection_id = insepcction_id
+        self.robot_id = robot_id
+        self.msg_head = 'inspection:{} robot: {}: [runRoute]: '.format(inspection_id,robot_id)
+        
         self.goal_sent = False
 
 	# What to do if shut down (e.g. Ctrl-C or failure)
         rospy.on_shutdown(self.shutdown)
 
 	# Tell the action client that we want to spin a thread by default
-        self.move_base = actionlib.SimpleActionClient("tb3_0/move_base", MoveBaseAction)
-        logger.info("Wait for the action server to come up")
+        self.move_base = actionlib.SimpleActionClient("{}/move_base".format(self.robot_id), MoveBaseAction)
+        logger.info(self.msg_head + "Wait for the action server to come up")
 
 	# Allow up to 5 seconds for the action server to come up
         self.move_base.wait_for_server(rospy.Duration(5))
@@ -75,7 +79,7 @@ class GoToPose():
     def shutdown(self):
         if self.goal_sent:
             self.move_base.cancel_goal()
-        logger.info("Stop")
+        logger.info(self.msg_head + "stop goto")
         rospy.sleep(1)
 
 if __name__ == '__main__':

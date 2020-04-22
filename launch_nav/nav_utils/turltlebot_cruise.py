@@ -66,6 +66,8 @@ running_flag = threading.Event()
 running_flag.set()
 tl = Timeloop()
 
+msg_head = 'inspection:{} robot: {}: [runRoute]: '.format(inspection_id,robot_id)
+
 def resetRbotStatus(waypoint_no=None):
     robot_status['route_point_no'] = waypoint_no
     robot_status['holding_pos'] = (0, 0)
@@ -83,7 +85,7 @@ def readPose(msg):
 
     if original_pose is None:
         original_pose = msg.pose.pose
-        logger.info('readPose: find start pose: {}'.format(original_pose))
+        logger.info(msg_head + 'readPose: find start pose: {}'.format(original_pose))
     else:
         if flag_in_returning:
             # print('readPose: in returning way')
@@ -106,7 +108,7 @@ def analyzePose():
   
     while running_flag.isSet():
         if pose_queue is None:
-            logger.info('analyzePose: main process exit! exit')
+            logger.info(msg_head + 'analyzePose: exit for main process terminates')
             return
 
         if pose_queue.empty():
@@ -138,10 +140,10 @@ def analyzePose():
             
             lock.acquire()
             robot_status['leave'] = (cur_theta, pose_time)
-            logger.info('ananlyzePose: find leave waypoint time, the record of current waypoint is: \n {}'.format(robot_status))
+            logger.info(msg_head + 'ananlyzePose: find leave waypoint time, the record of current waypoint is: \n {}'.format(robot_status))
             post_pose_queue.put((1, robot_status['route_point_no'], robot_status['enter'][1].isoformat("T"), robot_status['leave'][1].isoformat("T")))
             if flag_arrive_last_checkpoint:
-                logger.info('set in returning flag at leaving the last checkpoint')
+                logger.info(msg_head + 'set in returning flag at leaving the last checkpoint')
                 flag_in_returning = True
             resetRbotStatus()
             lock.release()
@@ -189,7 +191,7 @@ def buildFullRoute(route, original_pose):
                                                                   original_pose.orientation.z, \
                                                                   original_pose.orientation.w
     full_route.append(pt)
-    logger.info('runRoute: full route: \n {}'.format(full_route))
+    logger.info(msg_head + 'build full route: \n {}'.format(full_route))
 
     return full_route
 
@@ -199,7 +201,7 @@ def writeEnterEvent(pt_num, pt):
     robot_status['enter'] = (cur_theta, cur_time)
     robot_status['route_point_pos'] = (pt['position']['x'], pt['position']['y'])
     robot_status['holding_pos'] = (cur_x, cur_y)
-    logger.info('runRoute: arrive at a waypoint,  the record of current waypoint is: \n {}'.format(robot_status))
+    logger.info(msg_head + 'runRoute: arrive at a waypoint,  the record of current waypoint is: \n {}'.format(robot_status))
     lock.release()
 
 def clearTasks(odom_sub):
@@ -218,24 +220,26 @@ def runRoute(inspectionid, robotid, route):
 
     
     if type(route) != list:
-        msg = 'runRoute() required param route in type: list'
+        msg = msg_head + "required param route in type: list"
         logger.error(msg)
         raise TypeError(msg)
 
     if len(route) == 0:
-        logger.info('runRoute: route point list is empty, return!')
+        msg = msg_head + 'route point list is empty, return!'
+        logger.info(msg)
     try:
         # Initialize
-        rospy.init_node('follow_route', anonymous=False)
+        rospy.init_node('inspection:{} robot: {}'.format(inspection_id,robot_id), anonymous=False)
 
         # start to probe robot's position
-        odom_sub = rospy.Subscriber("/tb3_0/odom", Odometry, readPose)
-        t = threading.Thread(target=analyzePose, args=())
+        odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
+        logger.info(msg_head + 'start analyze pose thread')
+        t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
         t.start()
         tl.start()
 
         #init the rotate controller
-        rotate_ctl =  RotateController()
+        rotate_ctl =  RotateController(inspection_id, robot_id)
         
         #build the full route to make the robot return to its original position
         full_route = buildFullRoute(route, original_pose)
@@ -246,35 +250,32 @@ def runRoute(inspectionid, robotid, route):
         for index, pt in enumerate(full_route, start=1):
 
             if rospy.is_shutdown():
-                odom_sub.unregister()
-                running_flag.clear()
-                tl.stop()
+                clearTasks(odom_sub)
+                logger.info(msg_head + 'rospy shutdown')
                 break
 
             pt_num = pt['point_no']
 
             # Navigation
-            logger.info("Go to No. {} pose".format(pt_num))
+            logger.info(msg_head + "Go to No. {} pose".format(pt_num))
             success = navigator.goto(pt['position'], pt['quaternion'])
             if not success:
-                logger.warn("Failed to reach No. {} pose".format(pt_num))
+                logger.warn(msg_head + "Failed to reach No. {} pose".format(pt_num))
                 #send miss event to tsdb
                 if index <= route_len:
                     cur_time =  datetime.datetime.utcnow()
                     dbhelper.writeMissPointEvent(inspection_id, robot_id, pt_num)
-                    
                 continue
-            logger.info("Reached No. {} pose".format(pt_num))
+            logger.info(msg_head + "Reached No. {} pose".format(pt_num))
 
             if pt_num == route[-1]['point_no']:
-                logger.info('set flag of arrivging the last checkpoint')
+                logger.info(msg_head + 'Set flag of arrivging the last checkpoint')
                 flag_arrive_last_checkpoint = True
 
-            print('point index {}, route_len {}'.format(index, route_len))
             if index > route_len:
                 # returning route
                 if flag_arrive_last_checkpoint == False:
-                    logger.info('set in returning flag at first returning point')
+                    logger.info(msg_head + 'set in returning flag at first returning point')
                 flag_in_returning = True
                 continue  
 
@@ -288,7 +289,7 @@ def runRoute(inspectionid, robotid, route):
             #commend to robot to rotate 360 degree at current place
             step_angle = 360*1.0 / config.Circle_Rotate_Steps
             for i in range(1, config.Circle_Rotate_Steps+1):
-                logger.info('runRoute: rotate step {}, rotate angle: {}'.format(i, step_angle))
+                logger.info(msg_head + 'runRoute: rotate step {}, rotate angle: {}'.format(i, step_angle))
                 rotate_ctl.rotate(angle=step_angle)
                 rospy.sleep(config.Holding_Step_Time/config.Circle_Rotate_Steps)
 
@@ -298,11 +299,11 @@ def runRoute(inspectionid, robotid, route):
 
         #to make the analyzePose thread finished after unsubscribe the odom topic
         clearTasks(odom_sub)
-        logger.info('runRoute: finished route, unregister topic odom!')
+        logger.info(msg_head + 'runRoute: finished route, unregister topic odom!')
 
     except rospy.ROSInterruptException:
         clearTasks(odom_sub)
-        logger.info("Ctrl-C caught. Quitting")
+        logger.info(msg_head + "Ctrl-C caught. Quitting")
 
 
 
