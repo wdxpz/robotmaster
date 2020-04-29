@@ -3,7 +3,8 @@ import logging
 from config import log_file
 
 # Create a custom logger
-logger = logging.getLogger(__name__)
+#logger = logging.getLogger(__name__)
+logger = logging.getLogger()
 
 # Create handlers
 c_handler = logging.StreamHandler()

@@ -32,5 +32,5 @@ def index(request):
         else:
             return Response("Site Existed, abort for no forced!", status=status.HTTP_202_ACCEPTED)
     except Exception as e:
-        logger.error(e)
+        logger.error(str(e))
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)

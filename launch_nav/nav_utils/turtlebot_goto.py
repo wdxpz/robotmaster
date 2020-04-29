@@ -26,7 +26,7 @@ from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, Point, Quaternion
 
 from utils.logger import logger
-logger.name = __name__
+#logger.name = __name__
 
 class GoToPose():
     def __init__(self, inspecion_id, robot_id):

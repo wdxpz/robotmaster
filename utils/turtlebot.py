@@ -1,3 +1,6 @@
+import re
+import time
+
 from subprocess import PIPE, check_output, CalledProcessError
 
 def shell_cmd(command, shell=True):
@@ -7,10 +10,10 @@ def shell_cmd(command, shell=True):
     # return 0, result.stdout
     try:
         result = check_output(command, shell=shell)
-        print(result)
+        #print(result)
         return 0, result
-    except CalledProcessError:
-        return 1, None
+    except CalledProcessError as e:
+        return 1, str(e)
 
 def checkRobotNode(name='map_server', timeout=3):
     cmd = 'rosnode ping -c 1 {}'.format(name)

@@ -30,13 +30,13 @@ from timeloop import Timeloop
 import yaml
 
 import config
-from nav_utils.turtlebot_goto import GoToPose
-from nav_utils.turtlebot_rotate import RotateController, PI
-from nav_utils.tsdb import DBHelper
-from nav_utils.nav_math import distance, radiou2dgree
+from turtlebot_goto import GoToPose
+from turtlebot_rotate import RotateController, PI
+from tsdb import DBHelper
+from nav_math import distance, radiou2dgree
 
 from utils.logger import logger
-logger.name = __name__
+#logger.name = __name__
 
 
 inspection_id = 0
@@ -46,7 +46,7 @@ original_pose = None
 cur_x, cur_y, cur_theta = 0, 0, 0
 cur_time, pre_time = 0, 0
 robot_status = {
-    'id': config.RobotID,
+    'id': robot_id,
     'route_point_no': None,
     'holding_pos': (0, 0), #(x, y, angle)
     #for element in 'enter', 'stay', 'leave', it will be (angle: timestamp)
@@ -66,9 +66,12 @@ running_flag = threading.Event()
 running_flag.set()
 tl = Timeloop()
 
-msg_head = 'inspection:{} robot: {}: [runRoute]: '.format(inspection_id,robot_id)
+msg_head = 'inspection:{} robot: {}: [runRoute]: '
 
 def resetRbotStatus(waypoint_no=None):
+    global robot_id
+
+    robot_status['id'] = robot_id 
     robot_status['route_point_no'] = waypoint_no
     robot_status['holding_pos'] = (0, 0)
     robot_status['enter'] = ()
@@ -214,9 +217,12 @@ def runRoute(inspectionid, robotid, route):
     global robot_id
     global flag_arrive_last_checkpoint
     global flag_in_returning
+    global msg_head
 
     inspection_id = inspectionid 
     robot_id = robotid
+    msg_head.format(inspection_id,robot_id)
+    resetRbotStatus()
 
     
     if type(route) != list:

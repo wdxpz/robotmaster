@@ -7,7 +7,7 @@ from os.path import expanduser
 from config import ROS_Launch_File, Map_Dir, Launch_Max_Try
 from utils.turtlebot import checkRobotNode, shell_cmd
 from utils.logger import logger
-logger.name= __name__
+#logger.name= __name__
 
 class Turtlebot_Launcher():
     def __init__(self, siteid, robots):
@@ -36,7 +36,7 @@ class Turtlebot_Launcher():
             logger.error(msg)
             raise Exception(msg)
 
-     def checkRobotsOn(self):
+    def checkRobotsOn(self):
         robot_ids = self.robots.keys()
         failed_robots = []
         try:

@@ -2,7 +2,7 @@ import rospy
 from geometry_msgs.msg import Twist
 
 from utils.logger import logger
-logger.name == __name__
+#logger.name == __name__
 
 PI = 3.1415926535897
 

@@ -18,7 +18,7 @@ from logger import logger
 
 
 
-@api_view(['GET', 'POST'])
+@api_view(['POST'])
 #@parser_classes([parser_classes.JSONParser])
 def index(request):
     """

@@ -14,17 +14,19 @@ Status_Succeeded = 0
 Stauts_File_Existed = 10
 Status_Failed = 20
 
+msg_head = '[createsit]: '
+
 def createSite(sitename='test', description='', forced=True):
     if not checkRobotNode('map_server', timeout=1):
-        logger.error('createsite exit! Not found map_server')
-        raise Exception('not found map_server from rosnode')
+        logger.error(msg_head + 'createsite exit! Not found map_server')
+        raise Exception(msg_head + 'not found map_server from rosnode')
         return Status_Failed
 
     map_path = os.path.join(config.Map_Dir, sitename)
 
     if os.path.exists(map_path):
         if not forced:
-            logger.info('createsite exit! choose not to overwrite existed site!')
+            logger.info(msg_head + 'createsite exit! choose not to overwrite existed site!')
             return Stauts_File_Existed
     # logger.info(description)
     try:
@@ -32,8 +34,8 @@ def createSite(sitename='test', description='', forced=True):
         saveMap(map_path)
         createRemoteSite(sitename, description)
     except Exception as e:
-        logger.error('createsite error! {}'.format(str(e)))
-        raise Exception('createsite error')
+        logger.error(msg_head + 'createsite error! {}'.format(str(e)))
+        raise Exception(msg_head + 'createsite error')
         return Status_Failed
 
     return Status_Succeeded
