@@ -1,7 +1,7 @@
 import re
 import time
 
-from subprocess import PIPE, check_output, CalledProcessError
+from subprocess import Popen, PIPE, check_output, CalledProcessError
 
 def shell_cmd(command, shell=True):
     # result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
@@ -13,6 +13,16 @@ def shell_cmd(command, shell=True):
         #print(result)
         return 0, result
     except CalledProcessError as e:
+        return 1, str(e)
+
+def shell_open(command):
+    '''
+    run shell commnad witouth waiting for its return
+    '''
+    try:
+        process = Popen(command)
+        return 0, process
+    except Exception as e:
         return 1, str(e)
 
 def checkRobotNode(name='map_server', timeout=3):

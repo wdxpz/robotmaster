@@ -1,11 +1,12 @@
 import os
 import copy
 import time
+import pickle
 import xml.etree.ElementTree as ET
 from os.path import expanduser
 
-from config import ROS_Launch_File, Map_Dir, Launch_Max_Try
-from utils.turtlebot import checkRobotNode, shell_cmd
+from config import ROS_Launch_File, Map_Dir, Launch_Max_Try, Nav_Pickle_File
+from utils.turtlebot import checkRobotNode, shell_open
 from utils.logger import logger
 #logger.name= __name__
 
@@ -82,7 +83,7 @@ class Turtlebot_Launcher():
     def checkRobotNavOK(self, robot_id):
         robot_movebase_node = '/{}/move_base'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
-        if not checkRobotNode(robot_core_node, timeout=3):
+        if not checkRobotNode(robot_movebase_node, timeout=3):
             msg = 'robot: {} navigation not ready, not found ()!'.format(robot_id, robot_movebase_node)
             logger.error(msg)
             raise Exception(msg)
@@ -91,11 +92,19 @@ class Turtlebot_Launcher():
     def startNavigation(self):
         launch_file = self.buildLaunchFile()
         launch_file = launch_file.split('/')[-1]
-        commnad = ['roslaunch', 'multirobot_nv',  launch_file]
-        if shell_cmd(command, shell=Flase) != 0:
+        command = ['roslaunch', 'multirobot_nv',  launch_file]
+
+        ret_code, ret_pro = shell_open(command)
+        if ret_code != 0:
             msg = 'launch navigation failed, command [{}] not wokr!'.format(commnad)
             logger.error(msg)
             raise Exception(msg)
+        else:
+            with open(Nav_Pickle_File, 'wb') as f:
+                pickle.dump(ret_pro, f, pickle.HIGHEST_PROTOCOL)
+            
+
+
 
     def buildLaunchFile(self):
         org_launch_file = os.path.join(expanduser("~"), ROS_Launch_File)

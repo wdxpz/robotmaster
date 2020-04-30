@@ -27,6 +27,8 @@ Holding_Time = Holding_Step_Time+360/Rotate_Speed+Holding_Time_Variance
 ##time interval to upload to tsdb
 Pos_Collect_Interval = 0.2
 Upload_Interval = 2
+##navigation prcocess pickle file
+Nav_Pickle_File = os.path.join(BASE_DIR, 'nav_process.pkl')
 
 #tsdb
 upload_URL = 'www.bestfly.ml'
