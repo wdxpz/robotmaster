@@ -55,10 +55,9 @@ def index(request):
             robots = data['robots']
             robot_ids = robots.keys()
             for id in robot_ids:  
-                robots[id]
                 org_pos = str(robots[id]['org_pos'])
                 org_pos = ast.literal_eval(org_pos)
-                robots[id]['org_pos'] = (float(org_pos[0], float(org_pos[1])))
+                robots[id]['org_pos'] = (float(org_pos[0]), float(org_pos[1]))
                 subtask = str(robots[id]['subtask'])
                 subtask = ast.literal_eval(subtask)
                 robots[id]['subtask'] = [(int(num), float(x), float(y)) for num, x, y in subtask]
@@ -94,10 +93,10 @@ def index(request):
                 t.start()
             msg = 'Inspection {} by robots {} started sucessfully!'.format(inspection_id, robot_ids)
             logger.info(msg)
-            return Response(msg, status=HTTP_200_OK)
+            return Response(msg, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response(str(e), status=HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
         return Response({"message": "Got task data!", "data": robots}, status=status.HTTP_200_OK)

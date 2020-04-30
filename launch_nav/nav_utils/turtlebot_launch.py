@@ -15,9 +15,10 @@ class Turtlebot_Launcher():
         self.siteid = siteid
 
     def launch(self):
-        logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
+        
         launched = False
         for i in range(Launch_Max_Try):
+            logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
             try:
                 self.checkRobotsOn()
                 self.startNavigation()
@@ -26,7 +27,8 @@ class Turtlebot_Launcher():
                 launched = True
                 break
             except Exception as e:
-                msg = 'Faild of trial no. {} to launch navigation in multirobot mode'
+                logger(str(e))
+                msg = 'Faild of trial no. {} to launch navigation in multirobot mode'.format(i+1)
                 logger.info(msg)
 
         if launched:
@@ -39,11 +41,12 @@ class Turtlebot_Launcher():
     def checkRobotsOn(self):
         robot_ids = self.robots.keys()
         failed_robots = []
-        try:
-            for id in robot_ids:
-                self.checkRobotOnline(robot_id)
-        except:
-            failed_robots.append(id)
+        
+        for id in robot_ids:
+            try:
+                self.checkRobotOnline(id)
+            except:
+                failed_robots.append(id)
 
         if len(failed_robots) != 0:
             msg = 'robot: {} not online!'.format(failed_robots)
@@ -53,11 +56,12 @@ class Turtlebot_Launcher():
     def checkRobotsNav(self):
         robot_ids = self.robots.keys()
         failed_robots = []
-        try:
-            for id in robot_ids:
-                self.checkRobotNavOK(robot_id)
-        except:
-            failed_robots.append(id)
+        
+        for id in robot_ids:
+            try:
+                self.checkRobotNavOK(id)
+            except:
+                failed_robots.append(id)
 
         if len(failed_robots) != 0:
             msg = 'robot: {} navigation not ready!'.format(failed_robots)
@@ -96,7 +100,7 @@ class Turtlebot_Launcher():
     def buildLaunchFile(self):
         org_launch_file = os.path.join(expanduser("~"), ROS_Launch_File)
 
-        org_launch_file = org_launch_file.split('.')[0]+'_new.launch'
+        new_launch_file = org_launch_file.split('.')[0]+'_new.launch'
 
         tree = ET.parse(org_launch_file)
         root = tree.getroot()
@@ -112,13 +116,18 @@ class Turtlebot_Launcher():
             newnode = copy.deepcopy(root[1])
             newnode.getchildren()[0].attrib['value'] = id
             newnode.getchildren()[1].attrib['name'] = id + "_init_x"
-            newnode.getchildren()[1].attrib['value'] = self.robots[id]['org_pos'][0]
-            newnode.getchildren()[1].attrib['name'] = id + "_init_y"
-            newnode.getchildren()[2].attrib['value'] = self.robots[id]['org_pos'][1]
-            newnode.getchildren()[1].attrib['name'] = id + "_init_a"
-            newnode.getchildren()[3].attrib['value'] = self.robots[id]['org_pos'][2]
+            newnode.getchildren()[1].attrib['value'] = str(self.robots[id]['org_pos'][0])
+            newnode.getchildren()[2].attrib['name'] = id + "_init_y"
+            newnode.getchildren()[2].attrib['value'] = str(self.robots[id]['org_pos'][1])
+            newnode.getchildren()[3].attrib['name'] = id + "_init_a"
+            newnode.getchildren()[3].attrib['value'] = '0.0'
             root.append(newnode)
         #delete the template robot node
         root.remove(root[1])
 
-        tree.write(org_launch_file)
+        try:
+            tree.write(new_launch_file)
+            return new_launch_file
+        except Exception as e:
+            logger.error(str(e))
+        
