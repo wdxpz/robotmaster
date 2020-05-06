@@ -26,7 +26,8 @@ import rospy
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist
-from timeloop import Timeloop
+#from timeloop import Timeloop
+from apscheduler.schedulers.background import BackgroundScheduler
 import yaml
 
 import config
@@ -66,7 +67,7 @@ dbhelper = DBHelper()
 lock = threading.Lock()
 running_flag = threading.Event()
 running_flag.set()
-tl = Timeloop()
+#tl = Timeloop()
 
 msg_head = '' #'inspection:{} robot: {}: [runRoute]: '
 
@@ -155,7 +156,7 @@ def analyzePose():
 
             continue
 
-@tl.job(interval=timedelta(seconds=config.Upload_Interval))
+#@tl.job(interval=timedelta(seconds=config.Upload_Interval))
 def uploadCacheData():
     pos_records = []
     event_records = []
@@ -209,10 +210,14 @@ def writeEnterEvent(pt_num, pt):
     logger.info(msg_head + 'runRoute: arrive at a waypoint,  the record of current waypoint is: \n {}'.format(robot_status))
     lock.release()
 
-def clearTasks(odom_sub):
+def clearTasks(odom_sub, scheduler):
+    global running_flag
+#    global tl
+
     odom_sub.unregister()
     running_flag.clear()
-    tl.stop()
+    scheduler.shutdown()
+#    tl.stop()
     
 def runRoute(inspectionid, robotid, route):
     global inspection_id
@@ -221,6 +226,7 @@ def runRoute(inspectionid, robotid, route):
     global flag_in_returning
     global msg_head
     global logger
+#    global tl
 
     inspection_id = inspectionid 
     robot_id = robotid
@@ -245,10 +251,18 @@ def runRoute(inspectionid, robotid, route):
 
         # start to probe robot's position
         odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
-        logger.warn(msg_head + 'start analyze pose thread')
+        logger.info(msg_head + 'start analyze pose thread')
         t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
         t.start()
-        tl.start()
+        # try:
+        #     tl.stop()
+        # except Exception as e:
+        #     logger.info("try to stop timeloop failed, " + str(e))
+#        tl.start()
+        scheduler = BackgroundScheduler()  
+        scheduler.add_job(uploadCacheData, 'interval', seconds=config.Upload_Interval)
+        scheduler.start()
+
 
         #init the rotate controller
         rotate_ctl =  RotateController(inspection_id, robot_id)
@@ -262,7 +276,7 @@ def runRoute(inspectionid, robotid, route):
         for index, pt in enumerate(full_route, start=1):
 
             if rospy.is_shutdown():
-                clearTasks(odom_sub)
+                clearTasks(odom_sub, scheduler)
                 logger.info(msg_head + 'rospy shutdown')
                 break
 
@@ -311,11 +325,11 @@ def runRoute(inspectionid, robotid, route):
             rospy.sleep(0.5)
 
         #to make the analyzePose thread finished after unsubscribe the odom topic
-        clearTasks(odom_sub)
+        clearTasks(odom_sub, scheduler)
         logger.info(msg_head + 'runRoute: finished route, unregister topic odom!')
 
     except rospy.ROSInterruptException:
-        clearTasks(odom_sub)
+        clearTasks(odom_sub, scheduler)
         logger.info(msg_head + "Ctrl-C caught. Quitting")
 
 

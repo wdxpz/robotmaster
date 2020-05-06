@@ -11,18 +11,20 @@ from utils.turtlebot import checkRobotNode, shell_open
 #from utils.logger import logger
 from utils.logger2 import getLogger
 
-logger = getLogger('Turtlebot_Launcher')
+
 
 class Turtlebot_Launcher():
     def __init__(self, siteid, robots):
         self.robots = robots
         self.siteid = siteid
 
+        self.logger = getLogger('Turtlebot_Launcher')
+
     def launch(self):
         
         launched = False
         for i in range(Launch_Max_Try):
-            logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
+            self.logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
             try:
                 self.checkRobotsOn()
                 self.startNavigation()
@@ -31,15 +33,15 @@ class Turtlebot_Launcher():
                 launched = True
                 break
             except Exception as e:
-                logger(str(e))
+                self.logger.info(str(e))
                 msg = 'Faild of trial no. {} to launch navigation in multirobot mode'.format(i+1)
-                logger.info(msg)
+                self.logger.info(msg)
 
         if launched:
-            logger.info('Succeed in trial no. {} to launch navigation in multirobot mode!'.format(i+1))
+            self.logger.info('Succeed in trial no. {} to launch navigation in multirobot mode!'.format(i+1))
         else:
             msg = 'Faild to launch navigation in multirobot mode after {} trials'.format(Launch_Max_Try)
-            logger.error(msg)
+            self.logger.error(msg)
             raise Exception(msg)
 
     def checkRobotsOn(self):
@@ -54,7 +56,7 @@ class Turtlebot_Launcher():
 
         if len(failed_robots) != 0:
             msg = 'robot: {} not online!'.format(failed_robots)
-            logger.error(msg)
+            self.logger.error(msg)
             raise Exception(msg)
     
     def checkRobotsNav(self):
@@ -69,28 +71,28 @@ class Turtlebot_Launcher():
 
         if len(failed_robots) != 0:
             msg = 'robot: {} navigation not ready!'.format(failed_robots)
-            logger.error(msg)
+            self.logger.error(msg)
             raise Exception(msg)
 
     def checkRobotOnline(self, robot_id):
         robot_core_node = '/{}/turtlebot3_core'.format(robot_id)
-        logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
+        self.logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
         if not checkRobotNode(robot_core_node, timeout=3):
             msg = 'robot: {} not online!'.format(robot_id)
-            logger.error(msg)
+            self.logger.error(msg)
             raise Exception(msg)
-        logger.info('robot {} is online!'.format(robot_id))
+        self.logger.info('robot {} is online!'.format(robot_id))
     
    
 
     def checkRobotNavOK(self, robot_id):
         robot_movebase_node = '/{}/move_base'.format(robot_id)
-        logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
+        self.logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
         if not checkRobotNode(robot_movebase_node, timeout=3):
             msg = 'robot: {} navigation not ready, not found ()!'.format(robot_id, robot_movebase_node)
-            logger.error(msg)
+            self.logger.error(msg)
             raise Exception(msg)
-        logger.info('robot {} navigation is ready!'.format(robot_id))
+        self.logger.info('robot {} navigation is ready!'.format(robot_id))
     
     def startNavigation(self):
         launch_file = self.buildLaunchFile()
@@ -100,7 +102,7 @@ class Turtlebot_Launcher():
         ret_code, ret_pro = shell_open(command)
         if ret_code != 0:
             msg = 'launch navigation failed, command [{}] not wokr!'.format(commnad)
-            logger.error(msg)
+            self.logger.error(msg)
             raise Exception(msg)
         else:
             with open(Nav_Pickle_File, 'wb') as f:

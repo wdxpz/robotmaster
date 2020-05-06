@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import ast
 import threading
+import os
+import pickle
 
 from django.shortcuts import render
 from rest_framework.decorators import api_view
@@ -14,7 +16,7 @@ from rest_framework.response import Response
 from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 
-#from utils.logger import logger
+from config import Nav_Pickle_File
 from utils.logger2 import getLogger
 
 logger = getLogger('launch_av endpoint')
@@ -67,6 +69,15 @@ def index(request):
         except Exception as e:
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
 
+        logger.info('try to kill existed navigation process!')
+        if os.path.exists(Nav_Pickle_File):
+            try:
+                with open(Nav_Pickle_File, 'rb') as f:
+                    proc = pickle.load(f)
+                    proc.terminate()
+            except OSError as e:
+                logger.info(str(e))
+            os.remove(Nav_Pickle_File)
         
         logger.info('[launch_nav] launch robot with inspection id: {}, robots: {}'.format(inspection_id, robots))
         bot_launcher =Turtlebot_Launcher(site_id, robots)
