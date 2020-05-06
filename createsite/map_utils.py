@@ -9,7 +9,10 @@ from wand.image import Image
 
 
 import config
-from utils.logger import logger
+#from utils.logger import logger
+from utils.logger2 import getLogger
+
+logger = getLogger('map_utils')
 
 
 def saveMap(map_path):

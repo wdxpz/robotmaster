@@ -3,7 +3,9 @@ import datetime
 from influxdb import InfluxDBClient
 
 import config
-from utils.logger import logger
+from utils.logger2 import getLogger
+
+logger = getLogger('utils-tsdb')
 
 body_pos = {
     'measurement': config.Table_Name_Robot_Pos,

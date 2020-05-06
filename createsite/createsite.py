@@ -8,13 +8,16 @@ from map_utils import deleteRemoteSite, createRemoteSite, saveMap
 
 import config
 from utils.turtlebot import checkRobotNode
-from utils.logger import logger
+#from utils.logger import logger
+from utils.logger2 import getLogger
+
+logger = getLogger('createSite')
 
 Status_Succeeded = 0
 Stauts_File_Existed = 10
 Status_Failed = 20
 
-msg_head = '[createsit]: '
+msg_head = ' #''[createsit]: '
 
 def createSite(sitename='test', description='', forced=True):
     if not checkRobotNode('map_server', timeout=1):

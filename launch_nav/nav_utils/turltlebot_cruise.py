@@ -35,8 +35,10 @@ from turtlebot_rotate import RotateController, PI
 from tsdb import DBHelper
 from nav_math import distance, radiou2dgree
 
-from utils.logger import logger
-#logger.name = __name__
+
+from utils.logger2 import getLogger
+
+logger = None
 
 
 inspection_id = 0
@@ -66,7 +68,7 @@ running_flag = threading.Event()
 running_flag.set()
 tl = Timeloop()
 
-msg_head = 'inspection:{} robot: {}: [runRoute]: '
+msg_head = '' #'inspection:{} robot: {}: [runRoute]: '
 
 def resetRbotStatus(waypoint_no=None):
     global robot_id
@@ -218,10 +220,12 @@ def runRoute(inspectionid, robotid, route):
     global flag_arrive_last_checkpoint
     global flag_in_returning
     global msg_head
+    global logger
 
     inspection_id = inspectionid 
     robot_id = robotid
-    msg_head.format(inspection_id,robot_id)
+    msg_head = '' #msg_head.format(inspection_id,robot_id)
+    logger = getLogger('inspection_{}_robot_{} [turtlebot_cruise]: '.format(inspection_id,robot_id))
     resetRbotStatus()
 
     
@@ -235,11 +239,13 @@ def runRoute(inspectionid, robotid, route):
         logger.info(msg)
     try:
         # Initialize
-        rospy.init_node('inspection:{} robot: {}'.format(inspection_id,robot_id), anonymous=False)
+        threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id)
+        rospy.init_node(threadname, \
+            anonymous=False, disable_signals=True)
 
         # start to probe robot's position
         odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
-        logger.info(msg_head + 'start analyze pose thread')
+        logger.warn(msg_head + 'start analyze pose thread')
         t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
         t.start()
         tl.start()
@@ -252,7 +258,7 @@ def runRoute(inspectionid, robotid, route):
         route_len = len(route)
         
         #start navigation
-        navigator = GoToPose()
+        navigator = GoToPose(inspection_id, robot_id)
         for index, pt in enumerate(full_route, start=1):
 
             if rospy.is_shutdown():
@@ -263,6 +269,7 @@ def runRoute(inspectionid, robotid, route):
             pt_num = pt['point_no']
 
             # Navigation
+            msg = msg_head + "Go to No. {} pose".format(pt_num)
             logger.info(msg_head + "Go to No. {} pose".format(pt_num))
             success = navigator.goto(pt['position'], pt['quaternion'])
             if not success:
@@ -270,7 +277,7 @@ def runRoute(inspectionid, robotid, route):
                 #send miss event to tsdb
                 if index <= route_len:
                     cur_time =  datetime.datetime.utcnow()
-                    dbhelper.writeMissPointEvent(inspection_id, robot_id, pt_num)
+                    dbhelper.writeMissPointEvent(inspection_id, robot_id, cur_time, pt_num)
                 continue
             logger.info(msg_head + "Reached No. {} pose".format(pt_num))
 

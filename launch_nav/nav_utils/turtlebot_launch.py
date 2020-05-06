@@ -7,8 +7,11 @@ from os.path import expanduser
 
 from config import ROS_Launch_File, Map_Dir, Launch_Max_Try, Nav_Pickle_File
 from utils.turtlebot import checkRobotNode, shell_open
-from utils.logger import logger
-#logger.name= __name__
+
+#from utils.logger import logger
+from utils.logger2 import getLogger
+
+logger = getLogger('Turtlebot_Launcher')
 
 class Turtlebot_Launcher():
     def __init__(self, siteid, robots):

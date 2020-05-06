@@ -14,7 +14,10 @@ from rest_framework.response import Response
 from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 
-from logger import logger
+#from utils.logger import logger
+from utils.logger2 import getLogger
+
+logger = getLogger('launch_av endpoint')
 
 
 
@@ -88,6 +91,7 @@ def index(request):
                     )
                 task = threading.Thread(name='robot: {} of inpsection: {}'.format(id, inspection_id), \
                     target=runRoute, args=(inspection_id, id, route))
+                nav_tasks.append(task)
             for t in nav_tasks:
                 logger.info("Start inspection subtask thread: {}.".format(t.getName()))
                 t.start()

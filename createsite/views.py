@@ -8,7 +8,11 @@ from rest_framework.response import Response
 
 from createsite import createSite, Status_Succeeded, Stauts_File_Existed, Status_Failed
 
-from logger import logger
+#from utils.logger import logger
+from utils.logger2 import getLogger
+
+logger = getLogger('createsite endpoint')
+
 
 @api_view(['GET'])
 def index(request):
