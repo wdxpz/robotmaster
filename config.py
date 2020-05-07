@@ -19,7 +19,7 @@ ROS_Launch_File = 'catkin_ws/src/multirobot_nv/launch/startall.launch'
 Launch_Max_Try = 5
 
 #robot navigation configuration
-
+Wait_For_GoToPose_Time = 60
 Holding_Step_Time = 20
 Holding_Time_Variance = 1
 Circle_Rotate_Steps = 4

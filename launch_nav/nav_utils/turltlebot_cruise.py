@@ -68,7 +68,7 @@ post_pose_queue = Queue(maxsize =0)
 dbhelper = DBHelper()
 lock = threading.Lock()
 running_flag = threading.Event()
-running_flag.set()
+
 #tl = Timeloop()
 
 msg_head = 'inspection:{} robot: {}: '
@@ -221,6 +221,15 @@ def clearTasks(odom_sub, scheduler):
     if scheduler.running:
         scheduler.shutdown()
 #    tl.stop()
+
+def setInReturn(scheduler):
+    global flag_in_returning
+    global running_flag
+
+    flag_in_returning = True
+    running_flag.clear()
+    if scheduler.running:
+        scheduler.shutdown()
     
 def runRoute(inspectionid, robotid, route):
     global inspection_id
@@ -229,6 +238,12 @@ def runRoute(inspectionid, robotid, route):
     global flag_in_returning
     global msg_head
     global logger
+    global pose_queue
+    global post_pose_queue
+    global original_pose
+    global cur_x, cur_y, cur_theta
+    global cur_time, pre_time
+    global robot_status
 #    global tl
 
     inspection_id = inspectionid 
@@ -236,6 +251,16 @@ def runRoute(inspectionid, robotid, route):
     msg_head = msg_head.format(inspection_id,robot_id)
     
     resetRbotStatus()
+
+
+    original_pose = None
+    cur_x, cur_y, cur_theta = 0, 0, 0
+    cur_time, pre_time = 0, 0
+    flag_arrive_last_checkpoint = False
+    flag_in_returning = False
+    pose_queue.empty()
+    post_pose_queue.empty()
+
 
     
     if type(route) != list:
@@ -247,23 +272,19 @@ def runRoute(inspectionid, robotid, route):
         msg = msg_head + 'route point list is empty, return!'
         logger.info(msg)
     try:
+        running_flag.set()
+        
         # Initialize
-        threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id)
-        if checkRobotNode('/'+threadname, timeout=3):
-            logger.info('try to kill existed node: /'+threadname)
-            re_code, re_des = shell_cmd('rosnode kill /'+threadname)
-            if re_code != 0:
-                logger.error('failed to kill existed node: /'+threadname)
-                raise Exception('failed to kill existed node: /'+threadname)
-            else:
-                logger.info('killed existed node: /'+threadname)  
-        logger.info('init node: /'+threadname)
-        rospy.init_node(threadname, anonymous=False, disable_signals=True)   
+        threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
+        if not checkRobotNode('/'+threadname, timeout=3):
+            logger.info('init node: /'+threadname)
+            rospy.init_node(threadname, anonymous=False, disable_signals=True)   
 
         # start to probe robot's position
         odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
         logger.info(msg_head + 'start analyze pose thread')
         t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
+        #t.setDaemon(True)
         t.start()
 
         scheduler = BackgroundScheduler()  
@@ -303,6 +324,8 @@ def runRoute(inspectionid, robotid, route):
                 if index <= route_len:
                     cur_time =  datetime.datetime.utcnow()
                     dbhelper.writeMissPointEvent(inspection_id, robot_id, cur_time, pt_num)
+                if index == route_len:
+                    setInReturn(scheduler)
                 continue
             logger.info(msg_head + "Reached No. {} pose".format(pt_num))
 
@@ -314,7 +337,7 @@ def runRoute(inspectionid, robotid, route):
                 # returning route
                 if flag_arrive_last_checkpoint == False:
                     logger.info(msg_head + 'set in returning flag at first returning point')
-                flag_in_returning = True
+                setInReturn(scheduler)
                 continue  
 
             if robot_status['route_point_no'] is not None:
@@ -324,12 +347,13 @@ def runRoute(inspectionid, robotid, route):
             #write point enter information
             writeEnterEvent(pt_num, pt)
 
-            #commend to robot to rotate 360 degree at current place
-            step_angle = 360*1.0 / config.Circle_Rotate_Steps
-            for i in range(1, config.Circle_Rotate_Steps+1):
-                logger.info(msg_head + 'runRoute: rotate step {}, rotate angle: {}'.format(i, step_angle))
-                rotate_ctl.rotate(angle=step_angle)
-                rospy.sleep(config.Holding_Step_Time/config.Circle_Rotate_Steps)
+            if not config.DEBUG:
+                #commend to robot to rotate 360 degree at current place
+                step_angle = 360*1.0 / config.Circle_Rotate_Steps
+                for i in range(1, config.Circle_Rotate_Steps+1):
+                    logger.info(msg_head + 'runRoute: rotate step {}, rotate angle: {}'.format(i, step_angle))
+                    rotate_ctl.rotate(angle=step_angle)
+                    rospy.sleep(config.Holding_Step_Time/config.Circle_Rotate_Steps)
 
 
             #this guarantee to send the parameters out

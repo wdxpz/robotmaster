@@ -106,6 +106,7 @@ def index(request):
                 nav_tasks.append(task)
             for t in nav_tasks:
                 logger.info("Start inspection subtask thread: {}.".format(t.getName()))
+                t.setDaemon(True)
                 t.start()
             msg = 'Inspection {} by robots {} started sucessfully!'.format(inspection_id, robot_ids)
             logger.info(msg)

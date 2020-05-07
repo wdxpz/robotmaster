@@ -25,6 +25,7 @@ import actionlib
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, Point, Quaternion
 
+from config import Wait_For_GoToPose_Time, DEBUG
 from utils.logger2 import getLogger
 logger = getLogger('GoToPose')
 
@@ -64,7 +65,9 @@ class GoToPose():
         self.move_base.send_goal(goal)
 
 	# Allow TurtleBot up to 60 seconds to complete task
-        success = self.move_base.wait_for_result(rospy.Duration(60))
+        if DEBUG:
+            Wait_For_GoToPose_Time = 10
+        success = self.move_base.wait_for_result(rospy.Duration(Wait_For_GoToPose_Time))
 
         state = self.move_base.get_state()
         result = False
