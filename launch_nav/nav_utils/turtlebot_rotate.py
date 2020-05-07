@@ -2,7 +2,8 @@ import rospy
 from geometry_msgs.msg import Twist
 
 from utils.logger2 import getLogger
-
+logger = getLogger('RotateController')
+logger.propagate = False
 
 PI = 3.1415926535897
 
@@ -13,11 +14,11 @@ class RotateController():
 
         self.inspection_id = inspection_id
         self.robot_id = robot_id
-        self.msg_head = '' #'inspection:{} robot: {}: [runRoute]: '.format(inspection_id,robot_id)
+        self.msg_head = 'inspection:{} robot: {}: '.format(inspection_id,robot_id)
         self.rotate_pub = rospy.Publisher('/{}/cmd_vel'.format(self.robot_id), Twist, queue_size=10)
         self.rotate_command =Twist()
 
-        self.logger = getLogger('inspection_{}_robot_{} [RotateController]: '.format(inspection_id,robot_id))
+        
 
     def rotate(self, angle=90, speed=90, clockwise=True, stay=2):
         #Converting from angles to radians

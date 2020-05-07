@@ -12,6 +12,7 @@ from createsite import createSite, Status_Succeeded, Stauts_File_Existed, Status
 from utils.logger2 import getLogger
 
 logger = getLogger('createsite endpoint')
+logger.propagate = False
 
 
 @api_view(['GET'])

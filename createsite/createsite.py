@@ -12,6 +12,7 @@ from utils.turtlebot import checkRobotNode
 from utils.logger2 import getLogger
 
 logger = getLogger('createSite')
+logger.propagate = False
 
 Status_Succeeded = 0
 Stauts_File_Existed = 10

@@ -13,6 +13,7 @@ import config
 from utils.logger2 import getLogger
 
 logger = getLogger('map_utils')
+logger.propagate = False
 
 
 def saveMap(map_path):

@@ -38,8 +38,10 @@ from nav_math import distance, radiou2dgree
 
 
 from utils.logger2 import getLogger
+from utils.turtlebot import checkRobotNode, shell_cmd
 
-logger = None
+logger = getLogger('turtlebot_cruise')
+logger.propagate = False
 
 
 inspection_id = 0
@@ -69,7 +71,7 @@ running_flag = threading.Event()
 running_flag.set()
 #tl = Timeloop()
 
-msg_head = '' #'inspection:{} robot: {}: [runRoute]: '
+msg_head = 'inspection:{} robot: {}: '
 
 def resetRbotStatus(waypoint_no=None):
     global robot_id
@@ -230,8 +232,8 @@ def runRoute(inspectionid, robotid, route):
 
     inspection_id = inspectionid 
     robot_id = robotid
-    msg_head = '' #msg_head.format(inspection_id,robot_id)
-    logger = getLogger('inspection_{}_robot_{} [turtlebot_cruise]: '.format(inspection_id,robot_id))
+    msg_head = msg_head.format(inspection_id,robot_id)
+    
     resetRbotStatus()
 
     
@@ -246,19 +248,23 @@ def runRoute(inspectionid, robotid, route):
     try:
         # Initialize
         threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id)
-        rospy.init_node(threadname, \
-            anonymous=False, disable_signals=True)
+        if checkRobotNode('/'+threadname, timeout=3):
+            logger.info('try to kill existed node: /'+threadname)
+            re_code, re_des = shell_cmd('rosnode kill /'+threadname)
+            if re_code != 0:
+                logger.error('failed to kill existed node: /'+threadname)
+                raise Exception('failed to kill existed node: /'+threadname)
+            else:
+                logger.info('killed existed node: /'+threadname)  
+        logger.info('init node: /'+threadname)
+        rospy.init_node(threadname, anonymous=False, disable_signals=True)   
 
         # start to probe robot's position
         odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
         logger.info(msg_head + 'start analyze pose thread')
         t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
         t.start()
-        # try:
-        #     tl.stop()
-        # except Exception as e:
-        #     logger.info("try to stop timeloop failed, " + str(e))
-#        tl.start()
+
         scheduler = BackgroundScheduler()  
         scheduler.add_job(uploadCacheData, 'interval', seconds=config.Upload_Interval)
         scheduler.start()
@@ -274,6 +280,10 @@ def runRoute(inspectionid, robotid, route):
         #start navigation
         navigator = GoToPose(inspection_id, robot_id)
         for index, pt in enumerate(full_route, start=1):
+
+            if config.DEBUG:
+                logger.info('testing: skip cruise!!!')
+                break
 
             if rospy.is_shutdown():
                 clearTasks(odom_sub, scheduler)

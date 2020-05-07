@@ -2,6 +2,8 @@
 import os
 from robotmaster.settings import BASE_DIR
 
+DEBUG = True
+
 PI = 3.1415926535897
 
 #logger

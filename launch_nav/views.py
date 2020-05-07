@@ -20,6 +20,7 @@ from config import Nav_Pickle_File
 from utils.logger2 import getLogger
 
 logger = getLogger('launch_av endpoint')
+logger.propagate = False
 
 
 
