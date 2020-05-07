@@ -218,7 +218,8 @@ def clearTasks(odom_sub, scheduler):
 
     odom_sub.unregister()
     running_flag.clear()
-    scheduler.shutdown()
+    if scheduler.running:
+        scheduler.shutdown()
 #    tl.stop()
     
 def runRoute(inspectionid, robotid, route):
@@ -281,9 +282,9 @@ def runRoute(inspectionid, robotid, route):
         navigator = GoToPose(inspection_id, robot_id)
         for index, pt in enumerate(full_route, start=1):
 
-            if config.DEBUG:
-                logger.info('testing: skip cruise!!!')
-                break
+            # if config.DEBUG:
+            #     logger.info('testing: skip cruise!!!')
+            #     break
 
             if rospy.is_shutdown():
                 clearTasks(odom_sub, scheduler)

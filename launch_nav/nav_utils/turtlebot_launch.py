@@ -23,8 +23,7 @@ class Turtlebot_Launcher():
         
         launched = False
         if DEBUG:
-            Launch_Max_Try = 1
-            
+            Launch_Max_Try = 5
         for i in range(Launch_Max_Try):
             logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
             try:
@@ -89,12 +88,12 @@ class Turtlebot_Launcher():
 
     def checkRobotNavOK(self, robot_id):
         robot_movebase_node = '/{}/move_base'.format(robot_id)
-        self.logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
+        logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
         if not checkRobotNode(robot_movebase_node, timeout=3):
             msg = 'robot: {} navigation not ready, not found ()!'.format(robot_id, robot_movebase_node)
-            self.logger.error(msg)
+            logger.error(msg)
             raise Exception(msg)
-        self.logger.info('robot {} navigation is ready!'.format(robot_id))
+        logger.info('robot {} navigation is ready!'.format(robot_id))
     
     def startNavigation(self):
         launch_file = self.buildLaunchFile()
@@ -104,7 +103,7 @@ class Turtlebot_Launcher():
         ret_code, ret_pro = shell_open(command)
         if ret_code != 0:
             msg = 'launch navigation failed, command [{}] not wokr!'.format(commnad)
-            self.logger.error(msg)
+            logger.error(msg)
             raise Exception(msg)
         else:
             with open(Nav_Pickle_File, 'wb') as f:
