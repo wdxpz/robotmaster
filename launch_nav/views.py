@@ -17,6 +17,7 @@ from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 
 from config import Nav_Pickle_File
+from utils.turtlebot import killNavProcess
 from utils.logger2 import getLogger
 
 logger = getLogger('launch_av endpoint')
@@ -70,15 +71,8 @@ def index(request):
         except Exception as e:
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
 
-        logger.info('try to kill existed navigation process!')
-        if os.path.exists(Nav_Pickle_File):
-            try:
-                with open(Nav_Pickle_File, 'rb') as f:
-                    proc = pickle.load(f)
-                    proc.terminate()
-            except OSError as e:
-                logger.info(str(e))
-            os.remove(Nav_Pickle_File)
+        logger.info('try to kill existed navigation process before start!')
+        killNavProcess()
         
         logger.info('[launch_nav] launch robot with inspection id: {}, robots: {}'.format(inspection_id, robots))
         bot_launcher =Turtlebot_Launcher(site_id, robots)
@@ -115,6 +109,4 @@ def index(request):
         except Exception as e:
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-        return Response({"message": "Got task data!", "data": robots}, status=status.HTTP_200_OK)
     return Response(('post robot_id and subtask to launch robot navigation'), status=status.HTTP_400_BAD_REQUEST)

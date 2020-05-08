@@ -26,7 +26,6 @@ import rospy
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist
-#from timeloop import Timeloop
 from apscheduler.schedulers.background import BackgroundScheduler
 import yaml
 
@@ -38,7 +37,7 @@ from nav_math import distance, radiou2dgree
 
 
 from utils.logger2 import getLogger
-from utils.turtlebot import checkRobotNode, shell_cmd
+from utils.turtlebot import checkRobotNode, shell_cmd, killNavProcess
 
 logger = getLogger('turtlebot_cruise')
 logger.propagate = False
@@ -46,7 +45,6 @@ logger.propagate = False
 
 inspection_id = 0
 robot_id = 0
-
 original_pose = None
 cur_x, cur_y, cur_theta = 0, 0, 0
 cur_time, pre_time = 0, 0
@@ -96,7 +94,7 @@ def readPose(msg):
         logger.info(msg_head + 'readPose: find start pose: {}'.format(original_pose))
     else:
         if flag_in_returning:
-            # print('readPose: in returning way')
+            logger.info'readPose: in returning way')
             return
         if (cur_time - pre_time).total_seconds()<config.Pos_Collect_Interval:
             return
@@ -113,6 +111,7 @@ def analyzePose():
     global cur_theta
     global flag_arrive_last_checkpoint
     global flag_in_returning
+    global lock
   
     while running_flag.isSet():
         if pose_queue is None:
@@ -155,10 +154,8 @@ def analyzePose():
                 flag_in_returning = True
             resetRbotStatus()
             lock.release()
-
             continue
 
-#@tl.job(interval=timedelta(seconds=config.Upload_Interval))
 def uploadCacheData():
     pos_records = []
     event_records = []
@@ -171,6 +168,7 @@ def uploadCacheData():
             event_records.append(rec[1:])
 
     t = threading.Thread(target=dbhelper.upload, args=(inspection_id, robot_id, pos_records, event_records))
+    t.setDaemon(True)
     t.start()
 
 def buildFullRoute(route, original_pose):
@@ -204,6 +202,8 @@ def buildFullRoute(route, original_pose):
     return full_route
 
 def writeEnterEvent(pt_num, pt):
+    global lock
+
     lock.acquire()
     robot_status['route_point_no'] = pt_num
     robot_status['enter'] = (cur_theta, cur_time)
@@ -214,13 +214,13 @@ def writeEnterEvent(pt_num, pt):
 
 def clearTasks(odom_sub, scheduler):
     global running_flag
-#    global tl
 
     odom_sub.unregister()
     running_flag.clear()
     if scheduler.running:
         scheduler.shutdown()
-#    tl.stop()
+    logger.info('trying to kill navigation process at runRoute quit!')
+    killNavProcess()
 
 def setInReturn(scheduler):
     global flag_in_returning
@@ -244,15 +244,11 @@ def runRoute(inspectionid, robotid, route):
     global cur_x, cur_y, cur_theta
     global cur_time, pre_time
     global robot_status
-#    global tl
 
+    #reset global variables
     inspection_id = inspectionid 
     robot_id = robotid
     msg_head = msg_head.format(inspection_id,robot_id)
-    
-    resetRbotStatus()
-
-
     original_pose = None
     cur_x, cur_y, cur_theta = 0, 0, 0
     cur_time, pre_time = 0, 0
@@ -260,9 +256,8 @@ def runRoute(inspectionid, robotid, route):
     flag_in_returning = False
     pose_queue.empty()
     post_pose_queue.empty()
+    resetRbotStatus()
 
-
-    
     if type(route) != list:
         msg = msg_head + "required param route in type: list"
         logger.error(msg)
@@ -274,17 +269,17 @@ def runRoute(inspectionid, robotid, route):
     try:
         running_flag.set()
         
-        # Initialize
-        threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
-        if not checkRobotNode('/'+threadname, timeout=3):
-            logger.info('init node: /'+threadname)
-            rospy.init_node(threadname, anonymous=False, disable_signals=True)   
+        # # Initialize
+        # threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
+        # if not checkRobotNode('/'+threadname, timeout=3):
+        #     logger.info('init node: /'+threadname)
+        #     rospy.init_node(threadname, anonymous=False, disable_signals=True)   
 
         # start to probe robot's position
         odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
         logger.info(msg_head + 'start analyze pose thread')
         t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
-        #t.setDaemon(True)
+        t.setDaemon(True)
         t.start()
 
         scheduler = BackgroundScheduler()  
@@ -309,7 +304,7 @@ def runRoute(inspectionid, robotid, route):
 
             if rospy.is_shutdown():
                 clearTasks(odom_sub, scheduler)
-                logger.info(msg_head + 'rospy shutdown')
+                logger.info(msg_head + 'runRoute quit for rospy shutdown')
                 break
 
             pt_num = pt['point_no']
@@ -365,7 +360,7 @@ def runRoute(inspectionid, robotid, route):
 
     except rospy.ROSInterruptException:
         clearTasks(odom_sub, scheduler)
-        logger.info(msg_head + "Ctrl-C caught. Quitting")
+        logger.info(msg_head + "runRoute quit for Ctrl-C caught")
 
 
 

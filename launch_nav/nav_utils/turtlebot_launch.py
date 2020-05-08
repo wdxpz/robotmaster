@@ -109,9 +109,6 @@ class Turtlebot_Launcher():
             with open(Nav_Pickle_File, 'wb') as f:
                 pickle.dump(ret_pro, f, pickle.HIGHEST_PROTOCOL)
             
-
-
-
     def buildLaunchFile(self):
         org_launch_file = os.path.join(expanduser("~"), ROS_Launch_File)
 

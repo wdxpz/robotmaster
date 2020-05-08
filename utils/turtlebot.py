@@ -1,7 +1,14 @@
 import re
 import time
+import os
+import rospy
 
 from subprocess import Popen, PIPE, check_output, CalledProcessError
+from config import Nav_Pickle_File
+
+from utils.logger2 import getLogger
+logger = getLogger('utils.turtlebot')
+logger.propagate = False
 
 def shell_cmd(command, shell=True):
     # result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
@@ -35,3 +42,22 @@ def checkRobotNode(name='map_server', timeout=3):
         time.sleep(1)
 
     return False
+
+def killNavProcess():
+    if os.path.exists(config.Nav_Pickle_File):
+        logger.info('found previous nav process, try to kill!')
+        try:
+            with open(config.Nav_Pickle_File, 'rb') as f:
+                proc = pickle.load(f)
+                proc.terminate()
+        except OSError as e:
+            logger.info(str(e))
+        os.remove(config.Nav_Pickle_File)
+
+def initROSNode():
+    # Initialize
+    #threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
+    nodename = 'robotmaster'
+    if not checkRobotNode('/'+nodename, timeout=3):
+        logger.info('init node: /'+threadname)
+        rospy.init_node(threadname, anonymous=False, disable_signals=True)  
