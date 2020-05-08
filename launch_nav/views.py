@@ -99,8 +99,9 @@ def index(request):
                             'quaternion': {'r1': 0, 'r2': 0, 'r3': 0, 'r4': 1}
                         }
                     )
+                org_pose = robots[id]['org_pos']
                 task = threading.Thread(name='robot: {} of inpsection: {}'.format(id, inspection_id), \
-                    target=runRoute, args=(inspection_id, id, route))
+                    target=runRoute, args=(inspection_id, id, route, org_pose))
                 nav_tasks.append(task)
             for t in nav_tasks:
                 logger.info("Start inspection subtask thread: {}.".format(t.getName()))

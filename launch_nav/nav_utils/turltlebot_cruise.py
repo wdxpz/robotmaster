@@ -32,6 +32,7 @@ import yaml
 import config
 from turtlebot_goto import GoToPose
 from turtlebot_rotate import RotateController, PI
+from turtlebot_initpose import PoseIniter
 from tsdb import DBHelper
 from nav_math import distance, radiou2dgree
 
@@ -230,7 +231,7 @@ def setInReturn(scheduler):
     if scheduler.running:
         scheduler.shutdown()
     
-def runRoute(inspectionid, robotid, route):
+def runRoute(inspectionid, robotid, route, org_pose):
     global inspection_id
     global robot_id
     global flag_arrive_last_checkpoint
@@ -273,6 +274,10 @@ def runRoute(inspectionid, robotid, route):
         # if not checkRobotNode('/'+threadname, timeout=3):
         #     logger.info('init node: /'+threadname)
         #     rospy.init_node(threadname, anonymous=False, disable_signals=True)   
+
+        logger.info(msg_head + 'start to init robot pose as x:{}, y:{}, a:0.0'.format(robot_id, org_pose[0]))
+        pose_initer = PoseIniter(inspection_id, robot_id, org_pose[0], org_pose[1], 0.0)
+        pose_initer.set_pose()
 
         # start to probe robot's position
         odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)

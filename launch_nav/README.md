@@ -163,6 +163,11 @@ $ source ~/.bashrc
 
 # Sources to navigate robot
 
+## how to set robot initial pose
+1. refer to [如何用代码设置机器人初始坐标实现 2D Pose Estimate功能](https://www.cnblogs.com/kuangxionghui/p/8335853.html)
+
+2. refer to [How to Modify a Robot’s Coordinates When it Arrives at a Checkpoint?](https://www.theconstructsim.com/ros-qa-140-how-to-modify-a-robots-coordinates-when-it-arrives-at-a-checkpoint/)
+
 ## how to get robot position and angle from the original position
 1. subscribe /odom topic to get robot pose (position and orientation), refer [How to know the Pose of a robot (Python) ?](https://www.theconstructsim.com/ros-qa-know-pose-robot-python/)
    
