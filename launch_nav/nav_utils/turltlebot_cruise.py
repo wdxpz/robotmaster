@@ -25,7 +25,7 @@ from datetime import timedelta
 import rospy
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
-from geometry_msgs.msg import Point, Twist
+from geometry_msgs.msg import Point, Twist, Pose
 from apscheduler.schedulers.background import BackgroundScheduler
 import yaml
 
@@ -171,7 +171,7 @@ def uploadCacheData():
     t.setDaemon(True)
     t.start()
 
-def buildFullRoute(route, original_pose):
+def buildFullRoute(route, org_pose):
     #prepare navigation route to make robot return to original position after the job
     ##add reversed point list and original robot pos into the route
     full_route = copy.deepcopy(route)
@@ -181,21 +181,12 @@ def buildFullRoute(route, original_pose):
     for pt, index in zip(route[:-1][::-1], return_index):
         pt['point_no'] = index*-1
         full_route.append(pt)
+        
     pt = copy.deepcopy(route[0])
     pt['point_no'] = -1
-    if original_pose is None:
-        pt['position']['x'], pt['position']['y'] = 0, 0
-        pt['quaternion']['r1'], pt['quaternion']['r2'], \
-            pt['quaternion']['r3'],  pt['quaternion']['r4'] = 0, 0, 0, 1
-    else:
-        #TODO: for multirobots,
-        # it will be better to obtain robot's original pos from server at the beginning
-        pt['position']['x'], pt['position']['y'] = original_pose.position.x, original_pose.position.y
-        pt['quaternion']['r1'], pt['quaternion']['r2'], \
-            pt['quaternion']['r3'],  pt['quaternion']['r4'] = original_pose.orientation.x, \
-                                                                  original_pose.orientation.y, \
-                                                                  original_pose.orientation.z, \
-                                                                  original_pose.orientation.w
+    pt['position']['x'], pt['position']['y'] = org_pose[0], org_pose[1]
+    pt['quaternion']['r1'], pt['quaternion']['r2'], \
+        pt['quaternion']['r3'],  pt['quaternion']['r4'] = 0, 0, 0, 1
     full_route.append(pt)
     logger.info(msg_head + 'build full route: \n {}'.format(full_route))
 
@@ -295,7 +286,7 @@ def runRoute(inspectionid, robotid, route, org_pose):
         rotate_ctl =  RotateController(inspection_id, robot_id)
         
         #build the full route to make the robot return to its original position
-        full_route = buildFullRoute(route, original_pose)
+        full_route = buildFullRoute(route, org_pose)
         route_len = len(route)
         
         #start navigation
