@@ -17,7 +17,7 @@ from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 
 from config import Nav_Pickle_File
-from utils.turtlebot import killNavProcess
+from utils.turtlebot import killNavProcess, initROSNode
 from utils.logger2 import getLogger
 
 logger = getLogger('launch_av endpoint')
@@ -73,6 +73,10 @@ def index(request):
 
         logger.info('try to kill existed navigation process before start!')
         killNavProcess()
+
+        #init ROS node
+        logger.info('Init ROS Node')
+        initROSNode()
         
         logger.info('[launch_nav] launch robot with inspection id: {}, robots: {}'.format(inspection_id, robots))
         bot_launcher =Turtlebot_Launcher(site_id, robots)

@@ -94,7 +94,7 @@ def readPose(msg):
         logger.info(msg_head + 'readPose: find start pose: {}'.format(original_pose))
     else:
         if flag_in_returning:
-            logger.info'readPose: in returning way')
+            logger.info('readPose: in returning way')
             return
         if (cur_time - pre_time).total_seconds()<config.Pos_Collect_Interval:
             return

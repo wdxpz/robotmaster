@@ -1,8 +1,9 @@
 import re
 import time
 import os
-import rospy
+import pickle
 
+import rospy
 from subprocess import Popen, PIPE, check_output, CalledProcessError
 from config import Nav_Pickle_File
 
@@ -44,20 +45,20 @@ def checkRobotNode(name='map_server', timeout=3):
     return False
 
 def killNavProcess():
-    if os.path.exists(config.Nav_Pickle_File):
-        logger.info('found previous nav process, try to kill!')
+    if os.path.exists(Nav_Pickle_File):
+        logger.info('found nav process, try to kill!')
         try:
-            with open(config.Nav_Pickle_File, 'rb') as f:
+            with open(Nav_Pickle_File, 'rb') as f:
                 proc = pickle.load(f)
                 proc.terminate()
         except OSError as e:
             logger.info(str(e))
-        os.remove(config.Nav_Pickle_File)
+        os.remove(Nav_Pickle_File)
 
 def initROSNode():
     # Initialize
     #threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
     nodename = 'robotmaster'
     if not checkRobotNode('/'+nodename, timeout=3):
-        logger.info('init node: /'+threadname)
-        rospy.init_node(threadname, anonymous=False, disable_signals=True)  
+        logger.info('init node: /'+nodename)
+        rospy.init_node(nodename, anonymous=False, disable_signals=True)  
