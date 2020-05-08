@@ -22,8 +22,6 @@ class Turtlebot_Launcher():
     def launch(self):
         
         launched = False
-        if DEBUG:
-            Launch_Max_Try = 5
         for i in range(Launch_Max_Try):
             logger.info('Start trial no. {} to launch navigation in multirobot mode!'.format(i+1))
             try:

@@ -114,10 +114,13 @@ class DBHelper():
         return resutls
 
     def upload(self, inspection_id, robot_id, pos_records, event_records):
-        self.writePosRecord(inspection_id, robot_id, pos_records)
-        logger.info('[nav_utils] DBHelper: sent {} pos records'.format(len(pos_records)))
-        self.writeEventRecord(inspection_id, robot_id, event_records)
-        logger.info('[nav_utils] DBHelper: sent {} event records'.format(len(event_records)))
+        if len(pos_records)>0:
+            logger.info('[nav_utils] DBHelper: sent {} pos records'.format(len(pos_records)))
+            self.writePosRecord(inspection_id, robot_id, pos_records)
+        if len(event_records):
+            logger.info('[nav_utils] DBHelper: sent {} event records'.format(len(event_records)))
+            self.writeEventRecord(inspection_id, robot_id, event_records)
+        
 
 
 if __name__ == '__main__':

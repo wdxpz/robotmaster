@@ -2,7 +2,7 @@
 import os
 from robotmaster.settings import BASE_DIR
 
-DEBUG = True
+DEBUG = False
 
 PI = 3.1415926535897
 
