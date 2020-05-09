@@ -294,8 +294,10 @@ def runRoute(inspectionid, robotid, route, org_pose):
         for index, pt in enumerate(full_route, start=1):
 
             # if config.DEBUG:
-            #     logger.info('testing: skip cruise!!!')
-            #     break
+            # logger.info('testing: skip cruise!!!')
+            # while original_pose is None:
+            #     pass
+            # break
 
             if rospy.is_shutdown():
                 clearTasks(odom_sub, scheduler)
@@ -335,6 +337,7 @@ def runRoute(inspectionid, robotid, route, org_pose):
                 continue   
  
             #write point enter information
+            
             writeEnterEvent(pt_num, pt)
 
             if not config.DEBUG:
