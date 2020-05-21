@@ -23,6 +23,7 @@ from math import atan2
 from datetime import timedelta
 
 import rospy
+import tf
 from nav_msgs.msg import Odometry
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Point, Twist, Pose
@@ -81,6 +82,41 @@ def resetRbotStatus(waypoint_no=None):
     robot_status['enter'] = ()
     robot_status['leave'] = ()
 
+def getMapLocation():
+    global robot_id
+    global original_pose
+    global cur_time
+    global pre_time
+    global flag_in_returning
+
+    listener = tf.TransformListener()
+    listener.waitForTransform("/map", "/{}/base_link".format(robot_id), rospy.Time(0), rospy.Duration(10.0))
+    try:
+        while running_flag.isSet():
+            cur_time =  datetime.datetime.utcnow()
+
+            trans, rot = listener.lookupTransform("/map", "/{}/base_link".format(robot_id), rospy.Time(0))
+            robot_x, robot_y = trans[0], trans[1]
+
+            if original_pose is None:
+                original_pose = (trans, rot)
+                logger.info(msg_head + 'readPose: find start pose: {}'.format(original_pose))
+            else:
+                if flag_in_returning:
+                    return
+
+            pose_pos = (trans, rot)
+            pose_queue.put((pose_pos, cur_time))
+            
+            pre_time = cur_time
+
+            time.sleep(0.5)
+
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
+        logger(str(e))
+        raise e
+
+
 def readPose(msg):
     global original_pose
     global cur_time
@@ -125,10 +161,15 @@ def analyzePose():
         pose_pos, pose_time = pose_record[0], pose_record[1]
 
         #convert to x, y, angle
-        cur_x = pose_pos.position.x
-        cur_y = pose_pos.position.y
-        rot_q = pose_pos.orientation
-        (_,_,cur_theta) = euler_from_quaternion ([rot_q.x,rot_q.y,rot_q.z,rot_q.w])
+        # cur_x = pose_pos.position.x
+        # cur_y = pose_pos.position.y
+        # rot_q = pose_pos.orientation
+        #(_,_,cur_theta) = euler_from_quaternion ([rot_q.x,rot_q.y,rot_q.z,rot_q.w])
+        cur_x = pose_pos[0][0]
+        cur_y = pose_pos[0][1]
+        rot_q = pose_pos[1]
+        (_,_,cur_theta) = euler_from_quaternion (rot_q)
+        
         #convert form radius to degree
         cur_theta = radiou2dgree(cur_theta)
         # rospy.loginfo("current position: x-{}, y-{}, theta-{}".format(cur_x, cur_y, cur_theta))
@@ -206,7 +247,8 @@ def writeEnterEvent(pt_num, pt):
 def clearTasks(odom_sub, scheduler):
     global running_flag
 
-    odom_sub.unregister()
+    if odom_sub is not None:
+        odom_sub.unregister()
     running_flag.clear()
     if scheduler.running:
         scheduler.shutdown()
@@ -271,11 +313,18 @@ def runRoute(inspectionid, robotid, route, org_pose):
         pose_initer.set_pose()
 
         # start to probe robot's position
-        odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
-        logger.info(msg_head + 'start analyze pose thread')
-        t = threading.Thread(name='{}_pose'.format(robot_id), target=analyzePose, args=())
-        t.setDaemon(True)
-        t.start()
+        # odom_sub = rospy.Subscriber("/{}/odom".format(robot_id), Odometry, readPose)
+        # logger.info(msg_head + 'start analyze pose thread')
+        odom_sub = None
+
+        locater_t =  threading.Thread(name='{}_get_pose'.format(robot_id), target=getMapLocation, args=())
+        locater_t.setDaemon(True)
+        locater_t.start()
+
+        analyzer_t = threading.Thread(name='{}_analyze_pose'.format(robot_id), target=analyzePose, args=())
+        analyzer_t.setDaemon(True)
+        analyzer_t.start()
+
 
         scheduler = BackgroundScheduler()  
         scheduler.add_job(uploadCacheData, 'interval', seconds=config.Upload_Interval)
@@ -310,6 +359,7 @@ def runRoute(inspectionid, robotid, route, org_pose):
             msg = msg_head + "Go to No. {} pose".format(pt_num)
             logger.info(msg_head + "Go to No. {} pose".format(pt_num))
             success = navigator.goto(pt['position'], pt['quaternion'])
+            pose_initer.set_pose()
             if not success:
                 logger.warn(msg_head + "Failed to reach No. {} pose".format(pt_num))
                 #send miss event to tsdb

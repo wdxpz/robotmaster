@@ -86,7 +86,38 @@ to teleoperate the robot to move
 $ rosrun map_server map_saver -f /save_dir
 ```
 
+**Tips for SLAM**
+
+1. when manually operate the robot, do not to do vigorous movements such as changing the speed too quickly or rotating too fast.
+
+2. the robot should scan every corner of the environment to be measured
+
+3. change slam method, like **Hector**, **Cartographer** 
+
+   ```
+   roslaunch turtlebot3_slam turtlebot3_slam.launch slam_methods:=cartographer
+   ```
+
+   see [ROS 1 SLAM](http://emanual.robotis.com/docs/en/platform/turtlebot3/slam/#ros-1-slam) for how to install cartographer for Kinetic
+
+   **Hector**, **Cartographer** is better than Gmapping, and **Cartographer** is recommended by paper [Comparison of Various SLAM System for Mbile Robot in an Indoor Environment](https://www.researchgate.net/publication/328007381_Comparison_of_Various_SLAM_Systems_for_Mobile_Robot_in_an_Indoor_Environment)
+
+   **For tuning Cartographer** , refer [Tuning methodology](https://google-cartographer-ros.readthedocs.io/en/latest/tuning.html)
+
+4. For tuning Gmapping, refer: [Tuning Guide]([Tuning Guide](http://emanual.robotis.com/docs/en/platform/turtlebot3/slam/#tuning-guide)). For Gmapping, 5 parameters in `turtlebot3_slam/launch/turtlebot3_gmapping.launch`may be tuned:
+
+   ```
+   maxUrange
+   map_update_interval
+   minimumScore
+   linearUpdate
+   angularUpdate
+   ```
+
+   
+
 ## navigation
+
 1. remote pc:
 
 ```
