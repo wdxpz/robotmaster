@@ -16,7 +16,7 @@ Delete_Site_Endpoint = 'http://www.bestfly.ml:8000/site/'
 
 #robot launch configuration
 ROS_Launch_File = 'catkin_ws/src/multirobot_nv/launch/startall.launch'
-Launch_Max_Try = 5
+Launch_Max_Try = 3
 
 #robot pose initialization configration
 Trial_Set_Pose_Count = 3

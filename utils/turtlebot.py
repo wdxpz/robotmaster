@@ -33,7 +33,7 @@ def shell_open(command):
     except Exception as e:
         return 1, str(e)
 
-def checkRobotNode(name='map_server', timeout=3):
+def checkRobotNode(name='map_server', timeout=1):
     cmd = 'rosnode ping -c 1 {}'.format(name)
 
     for i in range(timeout):
