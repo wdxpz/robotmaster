@@ -1,12 +1,12 @@
 # 1. Hosts
 
 * wifi network: orangecape
-* robot master: 192.168.50.98
+* robot master: 192.168.27.1 , login: sw/abc123!@# , wifi: Cloud
 * robot nodes:
-  * tb3_0: 192.168.50.54, ssh: waffle/123456
-    * wifi enabler: 192.168.50.247 ssh: p1/123456
-    * bt_enabler_0: 192.168.50.147 ssh:pi/123456
-  * tb3_1: 192.168.50.24 ssh: robot/robot
+  * tb3_0: 192.168.27.2 , ssh: waffle/123456 , wifi: Cloud
+    * wifi enabler: 192.168.50.247 ssh: p1/123456 (wifi: OrangeCape)
+    * bt_enabler_0: 192.168.50.147 ssh:pi/123456 (wifi: OrangeCape)
+  * tb3_1: 192.168.27.3  ssh: robot/robot , wifi: Cloud
 
 # 2. PreSettings
 

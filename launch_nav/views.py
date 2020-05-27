@@ -85,6 +85,10 @@ def index(request):
             bot_launcher.launch()
             #navigate robot
             nav_tasks = []
+            nav_tasks_over = {}
+            for id in robot_ids:
+                task_name = 'robot: {} of inpsection: {}'.format(id, inspection_id)
+                nav_tasks_over[task_name] = False
             for id in robot_ids:
                 #prepare cruising data
                 route = []
@@ -100,8 +104,10 @@ def index(request):
                         }
                     )
                 org_pose = robots[id]['org_pos']
-                task = threading.Thread(name='robot: {} of inpsection: {}'.format(id, inspection_id), \
-                    target=runRoute, args=(inspection_id, id, route, org_pose))
+                task_name = 'robot: {} of inpsection: {}'.format(id, inspection_id)
+                task = threading.Thread(name=task_name, target=runRoute, \
+                    args=(inspection_id, id, route, org_pose, nav_tasks_over,))
+                nav_tasks_over
                 nav_tasks.append(task)
             for t in nav_tasks:
                 logger.info("Start inspection subtask thread: {}.".format(t.getName()))

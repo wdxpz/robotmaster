@@ -236,22 +236,30 @@ def writeEnterEvent(paras, pt_num, pt):
     paras['lock'].release()
 
 def clearTasks(paras, scheduler):
+    #set the task over flag
+    task_name = 'robot: {} of inpsection: {}'.format(paras['robot_id'], paras['inspection_id'])
+    paras['nav_tasks_over'][task_name] = True
+    
     paras['running_flag'].clear()
     if scheduler.running:
         scheduler.shutdown()
-    logger.info('trying to kill navigation process at runRoute quit!')
-    killNavProcess()
+
+    all_tasks_over = True
+    for _, over_flag in paras['nav_tasks_over'].items():
+        if not over_flag:
+            all_tasks_over = False
+            break
+    if all_tasks_over:
+        logger.info('all nav taks finished, trying to kill navigation process at runRoute quit!')
+        killNavProcess()
 
 def setInReturn(paras, scheduler):
-    global flag_in_returning
-    global running_flag
-
     paras['flag_in_returning'] = True
     paras['running_flag'].clear()
     if scheduler.running:
         scheduler.shutdown()
     
-def runRoute(inspectionid, robotid, route, org_pose):
+def runRoute(inspectionid, robotid, route, org_pose, nav_tasks_over):
     paras = initParas()
 
     #reset global variables
@@ -265,6 +273,7 @@ def runRoute(inspectionid, robotid, route, org_pose):
     paras['flag_in_returning'] = False
     paras['pose_queue'].empty()
     paras['post_pose_queue'].empty()
+    paras['nav_tasks_over'] = nav_tasks_over
     resetRbotStatus(paras)
 
     if type(route) != list:
