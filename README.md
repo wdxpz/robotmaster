@@ -1,4 +1,4 @@
-# 1. Hosts
+1. Hosts
 
 * wifi network: orangecape
 * robot master: 192.168.27.1 , login: sw/abc123!@# , wifi: Cloud
@@ -7,6 +7,77 @@
     * wifi enabler: 192.168.50.247 ssh: p1/123456 (wifi: OrangeCape)
     * bt_enabler_0: 192.168.50.147 ssh:pi/123456 (wifi: OrangeCape)
   * tb3_1: 192.168.27.3  ssh: robot/robot , wifi: Cloud
+
+# 2. Install
+
+## 2.1. Robot Master Node
+
+* Install ROS1
+
+  if need to change apt source and rosdep source, please refer to 
+
+  ```
+  sudo sh -c '. /etc/lsb-release && echo "deb http://mirrors.ustc.edu.cn/ros/ubuntu/ $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/ros-latest.list'
+  ```
+
+  install ROS1:
+
+```
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ wget https://raw.githubusercontent.com/ROBOTIS-GIT/robotis_tools/master/install_ros_kinetic.sh && chmod 755 ./install_ros_kinetic.sh && bash ./install_ros_kinetic.sh
+$ rosedep update
+##Install Dependent ROS 1 Packages
+$ sudo apt-get install ros-kinetic-joy ros-kinetic-teleop-twist-joy ros-kinetic-teleop-twist-keyboard ros-kinetic-laser-proc ros-kinetic-rgbd-launch ros-kinetic-depthimage-to-laserscan ros-kinetic-rosserial-arduino ros-kinetic-rosserial-python ros-kinetic-rosserial-server ros-kinetic-rosserial-client ros-kinetic-rosserial-msgs ros-kinetic-amcl ros-kinetic-map-server ros-kinetic-move-base ros-kinetic-urdf ros-kinetic-xacro ros-kinetic-compressed-image-transport ros-kinetic-rqt-image-view ros-kinetic-gmapping ros-kinetic-navigation ros-kinetic-interactive-markers
+
+$ cd ~/catkin_ws/src/
+$ git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+$ git clone -b kinetic-devel https://github.com/ROBOTIS-GIT/turtlebot3.git
+$ cd ~/catkin_ws && catkin_make
+
+$ sudo apt-get install ros-kinetic-hector-mapping
+
+$ nano .bashrc
+
+source /opt/ros/kinetic/setup.bash
+source ~/catkin_ws/devel/setup.bash
+export ROS_MASTER_URI=http://192.168.27.1:11311
+export ROS_HOSTNAME=192.168.27.1
+export TURTLEBOT3_MODEL=waffle_pi
+```
+
+## 2.2 Install robotmaster service
+
+* requirements 
+
+  ```
+  $ cd ~ & mkdir projects
+  $ cd projects
+  $ git clone https://github.com/wdxpz/robotmaster.git
+  $ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "django<2"
+  $ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "djangorestframework<3.10"
+  $ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple apscheduler
+  $ pip install requests
+  
+  $ sudo apt-get install libmagickwand-dev
+  $ pip install Wand
+  
+  pip install influxdb
+  
+  ```
+
+## 2.3 Install ROS launch_robot package
+
+```
+$ git clone https://github.com/wdxpz/turtlebot_master_scripts.git
+$ catkin_create_pkg multirobot_nv
+
+# copy files from git into ~/catkin_ws/src/multirobot_nv
+```
+
+
+
+
 
 # 2. PreSettings
 
