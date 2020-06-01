@@ -22,7 +22,7 @@ def getLogger(name=None):
 
     # Add handlers to the logger
     logger.addHandler(c_handler)
-    # logger.addHandler(f_handler)
+    logger.addHandler(f_handler)
     logger.setLevel(logging.INFO)
 
     return logger

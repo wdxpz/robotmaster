@@ -5,6 +5,9 @@ import pickle
 import xml.etree.ElementTree as ET
 from os.path import expanduser
 
+import rospy
+import tf
+
 from config import ROS_Launch_File, Map_Dir, Launch_Max_Try, Nav_Pickle_File, DEBUG
 from utils.turtlebot import checkRobotNode, shell_open
 
@@ -27,13 +30,15 @@ class Turtlebot_Launcher():
             try:
                 self.checkRobotsOn()
                 self.startNavigation()
-                time.sleep(5)
+                time.sleep(3)
                 self.checkRobotsNav()
+                time.sleep(3)
+                self.checkRobotsBaselink()
                 launched = True
                 break
             except Exception as e:
                 logger.info(str(e))
-                msg = 'Faild of trial no. {} to launch navigation in multirobot mode'.format(i+1)
+                msg = 'Faild of trial no. {} to launch navigation in multirobot mode. '.format(i+1) + str(e)
                 logger.info(msg)
 
         if launched:
@@ -73,6 +78,22 @@ class Turtlebot_Launcher():
             logger.error(msg)
             raise Exception(msg)
 
+    def checkRobotsBaselink(self):
+        robot_ids = self.robots.keys()
+        failed_robots = []
+        
+        for id in robot_ids:
+            try:
+                self.checkRobotBaselinkOK(id)
+            except:
+                failed_robots.append(id)
+
+        if len(failed_robots) != 0:
+            msg = 'robot: {} /baselink not ready for map location!'.format(failed_robots)
+            logger.error(msg)
+            raise Exception(msg)
+
+
     def checkRobotOnline(self, robot_id):
         robot_core_node = '/{}/turtlebot3_core'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
@@ -81,18 +102,27 @@ class Turtlebot_Launcher():
             logger.error(msg)
             raise Exception(msg)
         logger.info('robot {} is online!'.format(robot_id))
-    
-   
 
     def checkRobotNavOK(self, robot_id):
         robot_movebase_node = '/{}/move_base'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
         if not checkRobotNode(robot_movebase_node, timeout=3):
-            msg = 'robot: {} navigation not ready, not found ()!'.format(robot_id, robot_movebase_node)
+            msg = 'robot: {} navigation not ready, not found {}!'.format(robot_id, robot_movebase_node)
             logger.error(msg)
             raise Exception(msg)
         logger.info('robot {} navigation is ready!'.format(robot_id))
-    
+
+    def checkRobotBaselinkOK(self, robot_id):
+        logger.info('start to check robot {} ready for map location by listen to /{}/baselink.'.format(robot_id, robot_id))
+        listener = tf.TransformListener()
+        try:
+            listener.waitForTransform("/map", "/{}/base_link".format(robot_id), rospy.Time(0), rospy.Duration(10.0))
+            logger.info('/{}/base_link is ready for map location!'.format(robot_id))
+        except Exception as e:
+            logger.info('/{}/base_link is not ready for map location! '.format(robot_id) + str(e))
+            raise Exception('/{}/base_link is not ready for map location! '.format(robot_id))
+            
+
     def startNavigation(self):
         launch_file = self.buildLaunchFile()
         launch_file = launch_file.split('/')[-1]

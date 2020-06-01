@@ -112,8 +112,9 @@ def getMapLocation(paras):
             time.sleep(0.5)
 
     except Exception as e:
-        logger.error(str(e))
-        # raise Exception('canTransform: target_frame map does not exist')
+        logger.error('getMapLocation Error of robot: {}'.format(paras['robot_id']))
+        return
+        # raise Exception('getMapLocation Error of robot: {}'.format(paras['robot_id']))
 
 
 def readPose(msg):

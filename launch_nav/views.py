@@ -118,6 +118,8 @@ def index(request):
             return Response(msg, status=status.HTTP_200_OK)
 
         except Exception as e:
+            logger.info('try to kill existed navigation process after failed start!')
+            killNavProcess()
             return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return Response(('post robot_id and subtask to launch robot navigation'), status=status.HTTP_400_BAD_REQUEST)
