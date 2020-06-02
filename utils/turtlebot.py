@@ -11,16 +11,18 @@ from utils.logger2 import getLogger
 logger = getLogger('utils.turtlebot')
 logger.propagate = False
 
-def shell_cmd(command, shell=True):
+def shell_cmd(command, shell=True, timeout=3):
     # result = run(command, stdout=PIPE, stderr=PIPE, universal_newlines=True, shell=True)
     # if result.returncode != 0:
     #     return 1, None
     # return 0, result.stdout
     try:
-        result = check_output(command, shell=shell)
+        result = check_output('timeout {} {}'.format(timeout, command), shell=shell)
+        # result = check_output(command, shell=shell)
         #print(result)
         return 0, result
     except CalledProcessError as e:
+        logger.error(str(e))
         return 1, str(e)
 
 def shell_open(command):
@@ -33,10 +35,10 @@ def shell_open(command):
     except Exception as e:
         return 1, str(e)
 
-def checkRobotNode(name='map_server', timeout=1):
+def checkRobotNode(name='map_server', trytimes=1):
     cmd = 'rosnode ping -c 1 {}'.format(name)
 
-    for i in range(timeout):
+    for i in range(trytimes):
         _, output = shell_cmd(cmd)
         if len(re.findall('reply', output))>0:
             return True
@@ -59,6 +61,6 @@ def initROSNode():
     # Initialize
     #threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
     nodename = 'robotmaster'
-    if not checkRobotNode('/'+nodename, timeout=3):
+    if not checkRobotNode('/'+nodename, trytimes=1):
         logger.info('init node: /'+nodename)
         rospy.init_node(nodename, anonymous=False, disable_signals=True)  
