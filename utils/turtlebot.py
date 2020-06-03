@@ -19,7 +19,6 @@ def shell_cmd(command, shell=True, timeout=3):
     try:
         result = check_output('timeout {} {}'.format(timeout, command), shell=shell)
         # result = check_output(command, shell=shell)
-        #print(result)
         return 0, result
     except CalledProcessError as e:
         logger.error(str(e))
@@ -61,6 +60,6 @@ def initROSNode():
     # Initialize
     #threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
     nodename = 'robotmaster'
-    if not checkRobotNode('/'+nodename, trytimes=1):
+    if not checkRobotNode('/'+nodename, trytimes=3):
         logger.info('init node: /'+nodename)
         rospy.init_node(nodename, anonymous=False, disable_signals=True)  

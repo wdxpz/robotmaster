@@ -97,7 +97,7 @@ class Turtlebot_Launcher():
     def checkRobotOnline(self, robot_id):
         robot_core_node = '/{}/turtlebot3_core'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
-        if not checkRobotNode(robot_core_node, timeout=3):
+        if not checkRobotNode(robot_core_node, trytimes=3):
             msg = 'robot: {} not online!'.format(robot_id)
             logger.error(msg)
             raise Exception(msg)
@@ -106,7 +106,7 @@ class Turtlebot_Launcher():
     def checkRobotNavOK(self, robot_id):
         robot_movebase_node = '/{}/move_base'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
-        if not checkRobotNode(robot_movebase_node, timeout=3):
+        if not checkRobotNode(robot_movebase_node, trytimes=3):
             msg = 'robot: {} navigation not ready, not found {}!'.format(robot_id, robot_movebase_node)
             logger.error(msg)
             raise Exception(msg)
