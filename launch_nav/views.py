@@ -15,14 +15,14 @@ from rest_framework.response import Response
 
 from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
+from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
-from config import Nav_Pickle_File
+from config import Nav_Pickle_File, ERROR_ROBOTS_NOT_WORKING_AFTER_START, ERROR_ROBOTS_START_FAILED, ERROR_ROBOTS_STILL_WORKING, SUCCEED_ROBOTS_STARTED
 from utils.turtlebot import killNavProcess, initROSNode
 from utils.logger2 import getLogger
 
 logger = getLogger('launch_av endpoint')
 logger.propagate = False
-
 
 
 @api_view(['POST'])
@@ -48,6 +48,7 @@ def index(request):
             ...
         }
     }
+
     """
     if request.method == 'POST':
         data = request.data
@@ -70,6 +71,16 @@ def index(request):
                 robots[id]['subtask'] = [(int(num), float(x), float(y)) for num, x, y in subtask]
         except Exception as e:
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
+
+        working_robots = []
+        for id in robot_ids:
+            if isRobotWorking(id):
+                working_robots.append(id)
+        if len(working_robots) > 0:
+            return Response("robots {} are still working, please try again later!".format(working_robots), status=ERROR_ROBOTS_STILL_WORKING)
+
+        for id in robot_ids:
+            setRobotWorking(id)
 
         logger.info('try to kill existed navigation process before start!')
         killNavProcess()
@@ -115,11 +126,13 @@ def index(request):
                 t.start()
             msg = 'Inspection {} by robots {} started sucessfully!'.format(inspection_id, robot_ids)
             logger.info(msg)
-            return Response(msg, status=status.HTTP_200_OK)
+            return Response(msg, status=SUCCEED_ROBOTS_STARTED)
 
         except Exception as e:
             logger.info('try to kill existed navigation process after failed start!')
+            for id in robot_ids:
+                setRobotIdel(id)
             killNavProcess()
-            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(str(e), status=ERROR_ROBOTS_START_FAILED)
 
     return Response(('post robot_id and subtask to launch robot navigation'), status=status.HTTP_400_BAD_REQUEST)

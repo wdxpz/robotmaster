@@ -36,11 +36,11 @@ from turtlebot_rotate import RotateController, PI
 from turtlebot_initpose import PoseIniter
 from tsdb import DBHelper
 from nav_math import distance, radiou2dgree
+from turtlebot_robot_status import setRobotIdel, setRobotWorking, isRobotWorking
 
 
 from utils.logger2 import getLogger
 from utils.turtlebot import checkRobotNode, shell_cmd, killNavProcess
-
 logger = getLogger('turtlebot_cruise')
 logger.propagate = False
 
@@ -245,6 +245,8 @@ def clearTasks(paras, scheduler):
     if scheduler.running:
         scheduler.shutdown()
 
+    setRobotIdel(paras['robot_id'])
+
     all_tasks_over = True
     for _, over_flag in paras['nav_tasks_over'].items():
         if not over_flag:
@@ -276,6 +278,7 @@ def runRoute(inspectionid, robotid, route, org_pose, nav_tasks_over):
     paras['post_pose_queue'].empty()
     paras['nav_tasks_over'] = nav_tasks_over
     resetRbotStatus(paras)
+    
 
     if type(route) != list:
         msg = paras['msg_head'] + "required param route in type: list"

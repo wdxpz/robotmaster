@@ -57,6 +57,7 @@ class Turtlebot_Launcher():
                 self.checkRobotOnline(id)
             except:
                 failed_robots.append(id)
+                break
 
         if len(failed_robots) != 0:
             msg = 'robot: {} not online!'.format(failed_robots)
@@ -72,6 +73,7 @@ class Turtlebot_Launcher():
                 self.checkRobotNavOK(id)
             except:
                 failed_robots.append(id)
+                break
 
         if len(failed_robots) != 0:
             msg = 'robot: {} navigation not ready!'.format(failed_robots)
@@ -87,6 +89,7 @@ class Turtlebot_Launcher():
                 self.checkRobotBaselinkOK(id)
             except:
                 failed_robots.append(id)
+                break
 
         if len(failed_robots) != 0:
             msg = 'robot: {} /baselink not ready for map location!'.format(failed_robots)
@@ -97,7 +100,7 @@ class Turtlebot_Launcher():
     def checkRobotOnline(self, robot_id):
         robot_core_node = '/{}/turtlebot3_core'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
-        if not checkRobotNode(robot_core_node, trytimes=3):
+        if not checkRobotNode(robot_core_node, trytimes=1):
             msg = 'robot: {} not online!'.format(robot_id)
             logger.error(msg)
             raise Exception(msg)
@@ -106,7 +109,7 @@ class Turtlebot_Launcher():
     def checkRobotNavOK(self, robot_id):
         robot_movebase_node = '/{}/move_base'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
-        if not checkRobotNode(robot_movebase_node, trytimes=3):
+        if not checkRobotNode(robot_movebase_node, trytimes=1):
             msg = 'robot: {} navigation not ready, not found {}!'.format(robot_id, robot_movebase_node)
             logger.error(msg)
             raise Exception(msg)
@@ -130,7 +133,7 @@ class Turtlebot_Launcher():
 
         ret_code, ret_pro = shell_open(command)
         if ret_code != 0:
-            msg = 'launch navigation failed, command [{}] not wokr!'.format(commnad)
+            msg = 'launch navigation failed, command [{}] not wokr!'.format(command)
             logger.error(msg)
             raise Exception(msg)
         else:

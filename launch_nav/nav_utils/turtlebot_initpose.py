@@ -51,7 +51,7 @@ class PoseIniter():
             count += 1
             logger.info(self.msg_head + 'try no. {} to set roobt init pose'.format(count))
             self._set_inital_pose()
-            if count > Trial_Set_Pose_Count:
+            if count == Trial_Set_Pose_Count:
                 self.trial_set_pose_flag = False
             rospy.sleep(1)
 

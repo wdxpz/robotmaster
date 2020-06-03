@@ -41,3 +41,10 @@ upload_PORT = 8086
 upload_DB = 'robot'
 Table_Name_Robot_Pos = 'robot_poss'
 Table_Name_Robot_Event = 'robot_event'
+
+
+#http response code
+ERROR_ROBOTS_STILL_WORKING = 550
+ERROR_ROBOTS_START_FAILED = 551
+ERROR_ROBOTS_NOT_WORKING_AFTER_START = 559
+SUCCEED_ROBOTS_STARTED = 200
