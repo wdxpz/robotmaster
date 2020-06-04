@@ -37,7 +37,7 @@ class Turtlebot_Launcher():
                 launched = True
                 break
             except Exception as e:
-                logger.info(str(e))
+                logger.error('launch: ' + str(e))
                 msg = 'Faild of trial no. {} to launch navigation in multirobot mode. '.format(i+1) + str(e)
                 logger.info(msg)
 
@@ -55,12 +55,13 @@ class Turtlebot_Launcher():
         for id in robot_ids:
             try:
                 self.checkRobotOnline(id)
-            except:
+            except Exception as e:
+                logger.error('checkRobotsOn: '+ str(e))
                 failed_robots.append(id)
                 break
 
         if len(failed_robots) != 0:
-            msg = 'robot: {} not online!'.format(failed_robots)
+            msg = 'checkRobotsOn: robots {} not online !!!!'.format(failed_robots)
             logger.error(msg)
             raise Exception(msg)
     
@@ -71,7 +72,8 @@ class Turtlebot_Launcher():
         for id in robot_ids:
             try:
                 self.checkRobotNavOK(id)
-            except:
+            except Exception as e:
+                logger.error('checkRobotsNav: ' + str(e))
                 failed_robots.append(id)
                 break
 
@@ -87,7 +89,8 @@ class Turtlebot_Launcher():
         for id in robot_ids:
             try:
                 self.checkRobotBaselinkOK(id)
-            except:
+            except Exception as e:
+                logger.error('checkRobotsBaselink: ' + str(e))
                 failed_robots.append(id)
                 break
 
@@ -101,7 +104,7 @@ class Turtlebot_Launcher():
         robot_core_node = '/{}/turtlebot3_core'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_core_node))
         if not checkRobotNode(robot_core_node, trytimes=1):
-            msg = 'robot: {} not online!'.format(robot_id)
+            msg = 'checkRobotOnline: robot {} not online!'.format(robot_id)
             logger.error(msg)
             raise Exception(msg)
         logger.info('robot {} is online!'.format(robot_id))
@@ -110,7 +113,7 @@ class Turtlebot_Launcher():
         robot_movebase_node = '/{}/move_base'.format(robot_id)
         logger.info('start to check robot {} by ping rosnode {}'.format(robot_id, robot_movebase_node))
         if not checkRobotNode(robot_movebase_node, trytimes=1):
-            msg = 'robot: {} navigation not ready, not found {}!'.format(robot_id, robot_movebase_node)
+            msg = 'checkRobotNavOK: robot {} navigation not ready, not found {}!'.format(robot_id, robot_movebase_node)
             logger.error(msg)
             raise Exception(msg)
         logger.info('robot {} navigation is ready!'.format(robot_id))
@@ -120,9 +123,9 @@ class Turtlebot_Launcher():
         listener = tf.TransformListener()
         try:
             listener.waitForTransform("/map", "/{}/base_link".format(robot_id), rospy.Time(0), rospy.Duration(10.0))
-            logger.info('/{}/base_link is ready for map location!'.format(robot_id))
+            logger.info('checkRobotBaselinkOK: /{}/base_link is ready for map location!'.format(robot_id))
         except Exception as e:
-            logger.info('/{}/base_link is not ready for map location! '.format(robot_id) + str(e))
+            logger.info('checkRobotBaselinkOK: /{}/base_link is not ready for map location! '.format(robot_id) + str(e))
             raise Exception('/{}/base_link is not ready for map location! '.format(robot_id))
             
 

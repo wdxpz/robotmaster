@@ -1,0 +1,7 @@
+image: /home/sw/projects/robotmaster/map/beijing003/map.pgm
+resolution: 0.050000
+origin: [-2.140189, -9.175313, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

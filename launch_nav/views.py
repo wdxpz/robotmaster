@@ -94,6 +94,14 @@ def index(request):
         try:
             #launch navigation mode for multi-robots
             bot_launcher.launch()
+
+
+            ###just for trial
+            # for id in robot_ids:
+            #     setRobotIdel(id)
+            # robot_ids = []
+            ###just for trial
+
             #navigate robot
             nav_tasks = []
             nav_tasks_over = {}

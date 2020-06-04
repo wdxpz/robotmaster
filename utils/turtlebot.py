@@ -32,14 +32,15 @@ def shell_open(command):
         process = Popen(command)
         return 0, process
     except Exception as e:
+        logger.error(str(e))
         return 1, str(e)
 
 def checkRobotNode(name='map_server', trytimes=1):
     cmd = 'rosnode ping -c 1 {}'.format(name)
 
-    for i in range(trytimes):
-        _, output = shell_cmd(cmd)
-        if len(re.findall('reply', output))>0:
+    for _ in range(trytimes):
+        retcode, output = shell_cmd(cmd)
+        if retcode==0 and len(re.findall('reply', output))>0:
             return True
         time.sleep(1)
 
@@ -60,6 +61,6 @@ def initROSNode():
     # Initialize
     #threadname = 'inspeciton_{}_robot_{}'.format(inspection_id, robot_id) 
     nodename = 'robotmaster'
-    if not checkRobotNode('/'+nodename, trytimes=3):
+    if not checkRobotNode('/'+nodename, trytimes=1):
         logger.info('init node: /'+nodename)
         rospy.init_node(nodename, anonymous=False, disable_signals=True)  
