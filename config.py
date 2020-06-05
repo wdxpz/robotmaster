@@ -34,7 +34,6 @@ Pos_Collect_Interval = 0.2
 Upload_Interval = 2
 ##navigation prcocess pickle file
 Nav_Pickle_File = os.path.join(BASE_DIR, 'nav_process.pkl')
-
 #tsdb
 upload_URL = 'www.bestfly.ml'
 upload_PORT = 8086

@@ -205,3 +205,109 @@ json body:
     }
 ```
 
+# Run Service with Docker
+
+## On Mac
+
+### Reference [Using ROS with Docker in macOS](https://www.xiaokeyang.com/blog/using_ros_with_docker_in_macos)
+
+### 1. Run roscore in docker container
+
+* start container with port mapping to 11311, 
+    * option `-net=host` will not work in MacOS because docker in macOS itself runs inside a virtual machine. The above setting merely shares the same address with the virtual machine rather than the actual host 
+
+```
+$ docker run -it --rm --name roscore -p 11311:11311 ros:kinetic-robot bash
+```
+* in the container, start the roscore
+
+```
+$ ./ros_entrypoint.sh 
+$ ip=$(hostname -i)
+$ export ROS_IP=$ip
+$ roscore
+```
+
+### 2 Run ros node in another docker container
+
+* start the container
+
+```
+$ ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' roscore)
+$ docker run -it --rm --name node --env ROS_MASTER_URI=http://$ip:11311 ros:kinetic-robot bash
+```
+* config the env variables
+
+```
+$ ./ros_entrypoint.sh 
+$ ip=$(hostname -i)
+$ export ROS_IP=$ip
+$ echo $ROS_IP
+$ echo $ROS_MASTER_URI
+```
+
+* run ros app
+
+```
+$ rosnode ping /roscore 
+```
+
+## On Linux
+
+#### start roscore
+
+```
+$ docker run -it --network host --env ROS_IP=192.168.27.1 --rm --name roscore ros:kinetic-robot roscore
+```
+
+#### deploy robot master servcie
+
+* start container
+
+  ```
+  $sudo docker run -it --network host --env ROS_IP=192.168.27.1 --env ROS_MASTER_URI=http://192.168.27.1:11311 --env TURTLEBOT3_MODEL=waffle_pi --rm --name robotmaster -v /home/sw/projects:/projects ros:kinetic-robot bash
+  ```
+
+* install requirements
+
+  ```
+  #optional: change ROS apt source
+  $ sudo sh -c '. /etc/lsb-release && echo "deb http://mirrors.ustc.edu.cn/ros/ubuntu/ $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/ros-latest.list'
+  ```
+
+  
+
+  ```
+  $ sudo apt-get update
+  $ sudo apt-get install -y ros-kinetic-joy ros-kinetic-teleop-twist-joy ros-kinetic-teleop-twist-keyboard ros-kinetic-laser-proc ros-kinetic-rgbd-launch ros-kinetic-depthimage-to-laserscan ros-kinetic-rosserial-arduino ros-kinetic-rosserial-python ros-kinetic-rosserial-server ros-kinetic-rosserial-client ros-kinetic-rosserial-msgs ros-kinetic-amcl ros-kinetic-map-server ros-kinetic-move-base ros-kinetic-urdf ros-kinetic-xacro ros-kinetic-compressed-image-transport ros-kinetic-rqt-image-view ros-kinetic-gmapping ros-kinetic-navigation ros-kinetic-interactive-markers
+  
+  $ cd ~ & mkdir catkin_ws 
+  $ cd catkin_ws
+  $ mkdir src 
+  $ cd src
+  $ git clone https://github.com/ROBOTIS-GIT/turtlebot3_msgs.git
+  $ git clone -b kinetic-devel https://github.com/ROBOTIS-GIT/turtlebot3.git
+  $ cd ~/catkin_ws && catkin_make
+  
+  $ sudo apt-get install -y python-pip
+  $ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "django<2"
+  $ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple "djangorestframework<3.10"
+  $ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple apscheduler
+  $ pip install requests
+  $ sudo apt-get install libmagickwand-dev
+  $ pip install Wand
+  $ pip install influxdb
+  ```
+
+* clone project
+
+  ```
+  $ cd ~
+  $ mkdir projects
+  $ cd projects
+  $ git clone https://github.com/wdxpz/robotmaster.git robotmaster
+  $ cd ~/catkin_ws/src
+  $ git clone https://github.com/wdxpz/turtlebot_master_scripts.git multirobot_nv
+  ```
+
+  

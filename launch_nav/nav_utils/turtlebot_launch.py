@@ -153,6 +153,7 @@ class Turtlebot_Launcher():
 
         #modify mapserver node
         map_path = os.path.join(Map_Dir, self.siteid, 'map.yaml')
+        logger.info('map path: ' + map_path)
         mapnode = root[0]
         mapnode.getchildren()[0].attrib['value'] = map_path
         
