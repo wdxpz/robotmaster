@@ -30,9 +30,11 @@ class Turtlebot_Launcher():
             try:
                 self.checkRobotsOn()
                 self.startNavigation()
-                time.sleep(3)
+                #time.sleep(3)
+                rospy.sleep(3)
                 self.checkRobotsNav()
-                time.sleep(3)
+                #time.sleep(3)
+                rospy.sleep(3)
                 self.checkRobotsBaselink()
                 launched = True
                 break
