@@ -71,6 +71,9 @@ def index(request):
                 robots[id]['subtask'] = [(int(num), float(x), float(y)) for num, x, y in subtask]
         except Exception as e:
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
+        
+        if not checkMapFile(site_id):
+            return Response("map of {} not existed!".format(site_id), status=status.HTTP_400_BAD_REQUEST)
 
         working_robots = []
         for id in robot_ids:

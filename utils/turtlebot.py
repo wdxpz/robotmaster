@@ -2,10 +2,11 @@ import re
 import time
 import os
 import pickle
+import yaml
 
 import rospy
 from subprocess import Popen, PIPE, check_output, CalledProcessError
-from config import Nav_Pickle_File
+from config import Nav_Pickle_File, Map_Dir
 
 from utils.logger2 import getLogger
 logger = getLogger('utils.turtlebot')
@@ -64,3 +65,24 @@ def initROSNode():
     if not checkRobotNode('/'+nodename, trytimes=1):
         logger.info('init node: /'+nodename)
         rospy.init_node(nodename, anonymous=False, disable_signals=True)  
+
+
+def checkMapFile(siteid):
+    map_yml = os.path.join(Map_Dir, siteid, 'map.yaml')
+    map_pgm = os.path.join(Map_Dir, siteid, 'map.pgm')
+    if not os.path.exists(map_yml):
+        return False
+    
+    file = open(map_yml, 'r', encoding="utf-8")
+    file_data = file.read()
+    file.close()
+    all_data = yaml.load_all(file_data)
+    if all_data['image'] != map_pgm:
+        logger.warn('path of map pgm is not consistent in yaml file, auto correct it!')
+        all_data['image'] = map_pgm
+
+        file = open(map_yml, 'w', encoding='utf-8')
+        yaml.dump(all_data, file)
+        file.close()
+
+    return True
