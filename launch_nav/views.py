@@ -18,7 +18,7 @@ from nav_utils.turltlebot_cruise import runRoute
 from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
 from config import Nav_Pickle_File, ERROR_ROBOTS_NOT_WORKING_AFTER_START, ERROR_ROBOTS_START_FAILED, ERROR_ROBOTS_STILL_WORKING, SUCCEED_ROBOTS_STARTED
-from utils.turtlebot import killNavProcess, initROSNode
+from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
 from utils.logger2 import getLogger
 
 logger = getLogger('launch_av endpoint')
@@ -73,7 +73,7 @@ def index(request):
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
         
         if not checkMapFile(site_id):
-            return Response("map of {} not existed!".format(site_id), status=status.HTTP_400_BAD_REQUEST)
+            return Response("map of {} not existed or correct map yaml failed!".format(site_id), status=status.HTTP_400_BAD_REQUEST)
 
         working_robots = []
         for id in robot_ids:

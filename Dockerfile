@@ -2,8 +2,6 @@ FROM ros:kinetic-robot
 
 WORKDIR /root/projects/robotmaster
 
-RUN /bin/bash /ros_entrypoint.sh
-
 #option: change ROS apt source
 RUN sh -c '. /etc/lsb-release && echo "deb http://mirrors.ustc.edu.cn/ros/ubuntu/ $DISTRIB_CODENAME main" > /etc/apt/sources.list.d/ros-latest.list'
 
@@ -25,9 +23,10 @@ RUN pip install "django<2" "djangorestframework<3.10" apscheduler requests Wand 
 
 #clone project
 RUN cd ~/catkin_ws/src \
-    && git clone https://github.com/wdxpz/turtlebot_master_scripts.git multirobot_nv 
-#    && cd ~/projects \
-#    && git clone https://github.com/wdxpz/robotmaster.git robotmaster
+    && git clone https://github.com/wdxpz/turtlebot_master_scripts.git multirobot_nv
+
+RUN cd ~/projects \
+    && git clone https://github.com/wdxpz/robotmaster.git robotmaster
 
 RUN /bin/bash -c "echo 'source /opt/ros/kinetic/setup.bash' >> /root/.bashrc && \
                   echo 'source /root/catkin_ws/devel/setup.bash' >> /root/.bashrc && \

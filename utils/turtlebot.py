@@ -73,16 +73,20 @@ def checkMapFile(siteid):
     if not os.path.exists(map_yml):
         return False
     
-    file = open(map_yml, 'r', encoding="utf-8")
+    file = open(map_yml, 'r')
     file_data = file.read()
     file.close()
-    all_data = yaml.load_all(file_data)
+    all_data = list(yaml.load_all(file_data))[0]
     if all_data['image'] != map_pgm:
         logger.warn('path of map pgm is not consistent in yaml file, auto correct it!')
         all_data['image'] = map_pgm
 
-        file = open(map_yml, 'w', encoding='utf-8')
-        yaml.dump(all_data, file)
-        file.close()
+        try:
+            file = open(map_yml, 'w')
+            yaml.dump(all_data, file)
+            file.close()
+        except Exception as e:
+            logger.error("error to correct site's map yaml file!")
+            return False
 
     return True
