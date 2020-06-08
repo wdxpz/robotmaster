@@ -31,7 +31,7 @@ class Turtlebot_Launcher():
                 self.checkRobotsOn()
                 self.startNavigation()
                 #time.sleep(3)
-                rospy.sleep(3)
+                rospy.sleep(5)
                 self.checkRobotsNav()
                 #time.sleep(3)
                 rospy.sleep(3)
