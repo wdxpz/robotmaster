@@ -7,6 +7,6 @@ source /root/catkin_ws/devel/setup.bash
 #export TURTLEBOT3_MODEL=waffle_pi
 #export TZ=Asia/Shanghai
 
-#cd /projects/robotmaster
+cd /root/projects/robotmaster
 
 python manage.py runserver 0.0.0.0:8000

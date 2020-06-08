@@ -21,18 +21,20 @@ RUN /bin/bash -c '. /opt/ros/kinetic/setup.bash; cd /root/catkin_ws; catkin_make
 #install robotmaster requirements
 RUN pip install "django<2" "djangorestframework<3.10" apscheduler requests Wand influxdb
 
-#clone project
-RUN cd ~/catkin_ws/src \
-    && git clone https://github.com/wdxpz/turtlebot_master_scripts.git multirobot_nv
-
-RUN cd ~/projects \
-    && git clone https://github.com/wdxpz/robotmaster.git robotmaster
-
+#build the .bashrc for bash file
 RUN /bin/bash -c "echo 'source /opt/ros/kinetic/setup.bash' >> /root/.bashrc && \
                   echo 'source /root/catkin_ws/devel/setup.bash' >> /root/.bashrc && \
                   echo 'export TURTLEBOT3_MODEL=waffle_pi' >> /root/.bashrc && source /root/.bashrc"
-                 
+
+#install environments and excute command in launch.sh for auto exec the CMD
 ADD launch.sh /
 RUN chmod +x /launch.sh
+
+#clone project
+RUN cd /root/catkin_ws/src \
+    && git clone https://github.com/wdxpz/turtlebot_master_scripts.git multirobot_nv
+
+RUN cd /root/projects \
+    && git clone https://github.com/wdxpz/robotmaster.git robotmaster
 
 CMD ["/launch.sh"]
