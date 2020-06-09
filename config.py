@@ -43,7 +43,7 @@ Table_Name_Robot_Event = 'robot_event'
 
 
 #Inspection Status Codes
-Inspection_status ={
+Inspection_Status_Codes ={
     'CMD_SENT': 100,
     'CDM_ACCEPTED': 110,
     'INSPECTION_STARTED': 130, 

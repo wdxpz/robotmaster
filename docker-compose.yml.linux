@@ -1,0 +1,21 @@
+version: '2'
+services:
+  roscore_node:
+    image: "ros:kinetic-robot"
+    container_name: roscore_node
+    environment:
+      - "ROS_IP=192.168.27.1"
+    network_mode: "host"
+    command:
+      - roscore
+
+  robotmaster_node:
+    image: "robotmaster"
+    container_name: robotmaster_node
+    network_mode: "host"
+    environment:
+      - "ROS_IP=192.168.27.1"
+      - "ROS_MASTER_URI=http://192.168.27.1:11311"
+      - "TURTLEBOT3_MODEL=waffle_pi"
+    volumes:
+      - /home/sw/projects/robotmaster:/root/projects/robotmaster

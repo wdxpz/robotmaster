@@ -17,7 +17,7 @@ from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
-from config import Nav_Pickle_File
+from config import Nav_Pickle_File, Inspection_Status_Codes
 from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
 from utils.inspectionstatus import addTaskIntoMsgQueue
 from utils.logger2 import getLogger
@@ -84,7 +84,7 @@ def index(request):
             if isRobotWorking(id):
                 working_robots.append(id)
         if len(working_robots) > 0:
-            return Response("robots {} are still working, please try again later!".format(working_robots), status=ERROR_ROBOTS_STILL_WORKING)
+            return Response("robots {} are still working, please try again later!".format(working_robots), status=Inspection_Status_Codes['ERR_ROBOT_OCCUPIED'])
 
         for id in robot_ids:
             setRobotWorking(id)
@@ -141,13 +141,13 @@ def index(request):
                 t.start()
             msg = 'Inspection {} by robots {} started sucessfully!'.format(inspection_id, robot_ids)
             logger.info(msg)
-            return Response(msg, status=SUCCEED_ROBOTS_STARTED)
+            return Response(msg, status=Inspection_Status_Codes['INSPECTION_STARTED'])
 
         except Exception as e:
             logger.info('try to kill existed navigation process after failed start!')
             for id in robot_ids:
                 setRobotIdel(id)
             killNavProcess()
-            return Response(str(e), status=ERROR_ROBOTS_START_FAILED)
+            return Response(str(e), status=Inspection_Status_Codes['ERR_ROBOT_START'])
 
     return Response(('post robot_id and subtask to launch robot navigation'), status=status.HTTP_400_BAD_REQUEST)
