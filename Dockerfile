@@ -27,14 +27,14 @@ RUN /bin/bash -c "echo 'source /opt/ros/kinetic/setup.bash' >> /root/.bashrc && 
                   echo 'export TURTLEBOT3_MODEL=waffle_pi' >> /root/.bashrc && source /root/.bashrc"
 
 #add this and below command will run without cache
-ARG CACHEBAUST=1
+ARG CACHEBUST=1
 
 #clone project
 RUN cd /root/catkin_ws/src \
     && git clone https://github.com/wdxpz/turtlebot_master_scripts.git multirobot_nv
 
-RUN cd /root/projects \
-    && git clone https://github.com/wdxpz/robotmaster.git robotmaster
+#RUN cd /root/projects \
+#    && git clone https://github.com/wdxpz/robotmaster.git robotmaster
 
 #install environments and excute command in launch.sh for auto exec the CMD
 ADD launch.sh /

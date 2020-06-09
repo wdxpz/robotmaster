@@ -42,8 +42,15 @@ Table_Name_Robot_Pos = 'robot_poss'
 Table_Name_Robot_Event = 'robot_event'
 
 
-#http response code
-ERROR_ROBOTS_STILL_WORKING = 550
-ERROR_ROBOTS_START_FAILED = 551
-ERROR_ROBOTS_NOT_WORKING_AFTER_START = 559
-SUCCEED_ROBOTS_STARTED = 200
+#Inspection Status Codes
+Inspection_status ={
+    'CMD_SENT': 100,
+    'CDM_ACCEPTED': 110,
+    'INSPECTION_STARTED': 130, 
+    'INSPECTION_FINISHED': 140,
+    'ERR_CMD_PARAMETERS': 200,
+    'ERR_ROBOT_OCCUPIED': 210,
+    'ERR_ROBOT_START': 220
+}
+#Inspection Status Update Entrypoint
+Inspection_Status_Endpoint= 'http://www.bestfly.ml:8000/inspection/'

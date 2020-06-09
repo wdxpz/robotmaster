@@ -17,10 +17,10 @@ from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
-from config import Nav_Pickle_File, ERROR_ROBOTS_NOT_WORKING_AFTER_START, ERROR_ROBOTS_START_FAILED, ERROR_ROBOTS_STILL_WORKING, SUCCEED_ROBOTS_STARTED
+from config import Nav_Pickle_File
 from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
+from utils.inspectionstatus import addTaskIntoMsgQueue
 from utils.logger2 import getLogger
-
 logger = getLogger('launch_av endpoint')
 logger.propagate = False
 
@@ -52,10 +52,14 @@ def index(request):
     """
     if request.method == 'POST':
         data = request.data
+        
         if 'inspection_id' not in data.keys() or 'site_id' not in data.keys() or 'robots' not in data.keys() :
             msg = 'key inspection_id, site_id and robots required'
             logger.info(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        
+        #addTaskIntoMsgQueue(data)
+        #return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
         
         try: 
             inspection_id = int(data['inspection_id'])
