@@ -20,6 +20,7 @@ from django.contrib import admin
 
 urlpatterns = [
     # url(r'^createsite', views.index, name='index'),
+    url(r'^tasks/', include('msg_center_demo.urls')),
     url(r'^createsite/', include('createsite.urls')),
     url(r'^launch/', include('launch_nav.urls')),
 #    url(r'^admin/', admin.site.urls),

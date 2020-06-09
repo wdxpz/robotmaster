@@ -54,3 +54,7 @@ Inspection_Status_Codes ={
 }
 #Inspection Status Update Entrypoint
 Inspection_Status_Endpoint= 'http://www.bestfly.ml:8000/inspection/'
+
+
+#MSG center entrypoint
+Msg_Center_Endpoint='http://127.0.0.1:8000/tasks/'

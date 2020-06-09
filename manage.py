@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 import os
 import sys
-import pickle
-from subprocess import Popen
 
-from config import Nav_Pickle_File
-from utils.turtlebot import killNavProcess
+#from utils.turtlebot import killNavProcess
 
 from utils.logger2 import getLogger
 logger = getLogger('manage.py')
@@ -16,7 +13,7 @@ if __name__ == "__main__":
 
     #kill existed navigation process
     logger.info('try to kill existed navigation process!')
-    killNavProcess()
+ #   killNavProcess()
 
     try:
         from django.core.management import execute_from_command_line

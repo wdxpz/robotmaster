@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'msg_center_demo',
     'createsite',
     'launch_nav',
     'django.contrib.admin',

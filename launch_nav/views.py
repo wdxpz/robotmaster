@@ -19,7 +19,7 @@ from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRo
 
 from config import Nav_Pickle_File, Inspection_Status_Codes
 from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
-from utils.inspectionstatus import addTaskIntoMsgQueue
+from utils.inspection_centre import addTaskIntoMsgQueue
 from utils.logger2 import getLogger
 logger = getLogger('launch_av endpoint')
 logger.propagate = False
