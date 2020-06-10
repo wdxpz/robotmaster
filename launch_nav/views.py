@@ -59,8 +59,6 @@ def index(request):
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
         addTaskIntoMsgQueue(data)
-        data = getTasksFromMsgQueue()
-        print(data)
         return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
         
         try: 

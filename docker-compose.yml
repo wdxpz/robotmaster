@@ -12,5 +12,6 @@ services:
     volumes:
       - /home/sw/projects/robotmaster:/root/projects/robotmaster
       - /home/sw/projects/rosbot/taskcontroller:/root/projects/taskcontroller
+      - /home/sw/projects/rosbot/map:/root/projects/map
     ports:
       - "8000:8000"

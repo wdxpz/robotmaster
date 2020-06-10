@@ -1,6 +1,0 @@
-free_thresh: 0.196
-image: /root/projects/robotmaster/map/beijing001/map.pgm
-negate: 0
-occupied_thresh: 0.65
-origin: [-51.224998, -51.224998, 0.0]
-resolution: 0.05
