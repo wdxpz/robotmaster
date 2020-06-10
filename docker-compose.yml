@@ -4,10 +4,12 @@ services:
     image: "robotmaster"
     container_name: robotmaster_node
     environment:
+      - "HOST_OS=linux"
+      - "ROS_IP=192.168.27.1"
       - "ROS_MASTER_URI=http://192.168.27.1:11311"
       - "TURTLEBOT3_MODEL=waffle_pi"
     volumes:
-      - /Users/wusi/Documents/projects/Python/orange/robotmaster:/root/projects/robotmaster
-      - /Users/wusi/Documents/projects/Python/orange/robottaskcontroller:/root/projects/robottaskcontroller
+      - /home/sw/projects/rosrobot/robotmaster:/root/projects/robotmaster
+      - /home/sw/projects/rosrobot/taskcontroller:/root/projects/taskcontroller
     ports:
       - "8000:8000"
