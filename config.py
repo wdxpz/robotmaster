@@ -1,5 +1,6 @@
 
 import os
+from Queue import Queue
 from robotmaster.settings import BASE_DIR
 
 DEBUG = False
@@ -57,4 +58,5 @@ Inspection_Status_Endpoint= 'http://www.bestfly.ml:8000/inspection/'
 
 
 #MSG center entrypoint
-Msg_Center_Endpoint='http://127.0.0.1:8000/tasks/'
+Msg_Center_Endpoint='http://127.0.0.1:8001/tasks/'
+task_msg_queue = Queue()

@@ -8,9 +8,6 @@ from rest_framework import status
 from rest_framework.response import Response
 #from rest_framework.decorators import JSONParser
 
-from nav_utils.turtlebot_launch import Turtlebot_Launcher
-from nav_utils.turltlebot_cruise import runRoute
-from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
 from msg_utils import putTask, getTask
 
@@ -25,7 +22,9 @@ logger.propagate = False
 def index(request):
     if request.method == 'POST':
         putTask(request.data)
+        logger.info("new task added into MSG queue!")
         return Response("new task added into MSG queue!", status=status.HTTP_200_OK)
     else:
         task_data = getTask()
+        logger.info("get new task: {} from MSG queue!".format(task_data))
         return Response(data=task_data, status=status.HTTP_200_OK)

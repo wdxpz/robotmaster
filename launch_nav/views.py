@@ -19,7 +19,7 @@ from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRo
 
 from config import Nav_Pickle_File, Inspection_Status_Codes
 from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
-from utils.inspection_centre import addTaskIntoMsgQueue
+from utils.msg_center import addTaskIntoMsgQueue, getTasksFromMsgQueue
 from utils.logger2 import getLogger
 logger = getLogger('launch_av endpoint')
 logger.propagate = False
@@ -58,8 +58,10 @@ def index(request):
             logger.info(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
-        #addTaskIntoMsgQueue(data)
-        #return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
+        addTaskIntoMsgQueue(data)
+        data = getTasksFromMsgQueue()
+        print(data)
+        return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
         
         try: 
             inspection_id = int(data['inspection_id'])

@@ -1,4 +1,5 @@
 import requests
+import json
 
 from config import Msg_Center_Endpoint
 
@@ -11,7 +12,7 @@ def addTaskIntoMsgQueue(data):
 
     is_error = False
     try:
-        response = requests.post(Msg_Center_Endpoint, data=data)
+        response = requests.post(Msg_Center_Endpoint, data={'data': json.dumps(data)})
         if response.status_code != 200:
             is_error = True
     except Exception as e:
@@ -22,6 +23,8 @@ def addTaskIntoMsgQueue(data):
         msg = "Failed to upload task data to MSG center! "
         logger.error(msg)
         raise Exception("Error in upload zipped map file for robot!")
+    
+    logger.info("Succeeded to upload task data to MSG center!")
 
 def getTasksFromMsgQueue():
     is_error = False
@@ -29,6 +32,8 @@ def getTasksFromMsgQueue():
         response = requests.get(Msg_Center_Endpoint)
         if response.status_code != 200:
             is_error = True
+        data = json.loads(response.content)['data']
+        task_data = json.loads(data)
     except Exception as e:
         logger.error(str(e))
         is_error = True
@@ -37,4 +42,8 @@ def getTasksFromMsgQueue():
         msg = "Failed to get new task data from MSG center! "
         logger.error(msg)
         return None
-    return response.data
+    
+
+    logger.info("Succeeded to get new task data from MSG center!")
+    return task_data
+
