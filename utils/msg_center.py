@@ -8,11 +8,11 @@ logger = getLogger('utils.msg_center')
 logger.propagate = False
 
 
-def addTaskIntoMsgQueue(data):
+def addTaskIntoMsgQueue(data, tasktype=-1):
 
     is_error = False
     try:
-        response = requests.post(Msg_Center_Endpoint, data={'data': json.dumps(data)})
+        response = requests.post(Msg_Center_Endpoint, data={tasktype:json.dumps(data)})
         if response.status_code != 200:
             is_error = True
     except Exception as e:

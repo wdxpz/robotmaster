@@ -17,7 +17,7 @@ from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
-from config import Nav_Pickle_File, Inspection_Status_Codes
+from config import Nav_Pickle_File, Inspection_Status_Codes, Task_Type
 from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
 from utils.msg_center import addTaskIntoMsgQueue, getTasksFromMsgQueue
 from utils.logger2 import getLogger
@@ -58,23 +58,22 @@ def index(request):
             logger.info(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
-        addTaskIntoMsgQueue(data)
-        return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
-        
         try: 
             inspection_id = int(data['inspection_id'])
             site_id = str(data['site_id'])
             robots = data['robots']
             robot_ids = robots.keys()
-            for id in robot_ids:  
-                org_pos = str(robots[id]['org_pos'])
-                org_pos = ast.literal_eval(org_pos)
+            for id in robot_ids: 
+                org_pos = robots[id]['org_pos'] 
                 robots[id]['org_pos'] = (float(org_pos[0]), float(org_pos[1]))
-                subtask = str(robots[id]['subtask'])
-                subtask = ast.literal_eval(subtask)
+                subtask = robots[id]['subtask']
                 robots[id]['subtask'] = [(int(num), float(x), float(y)) for num, x, y in subtask]
         except Exception as e:
+            logger.info(str(e))
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
+
+        addTaskIntoMsgQueue(data, tasktype=Task_Type['Type_Inspection'])
+        return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
         
         if not checkMapFile(site_id):
             return Response("map of {} not existed or correct map yaml failed!".format(site_id), status=status.HTTP_400_BAD_REQUEST)
