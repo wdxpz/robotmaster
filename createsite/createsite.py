@@ -8,41 +8,28 @@ from map_utils import deleteRemoteSite, createRemoteSite, saveMap
 
 import config
 from utils.turtlebot import checkRobotNode
-#from utils.logger import logger
 from utils.logger2 import getLogger
 
 logger = getLogger('createSite')
 logger.propagate = False
 
-Status_Succeeded = 0
-Stauts_File_Existed = 10
-Status_Failed = 20
-
-msg_head = ' #''[createsit]: '
-
 def createSite(sitename='test', description='', forced=True):
-    if not checkRobotNode('map_server', timeout=1):
-        logger.error(msg_head + 'createsite exit! Not found map_server')
-        raise Exception(msg_head + 'not found map_server from rosnode')
-        return Status_Failed
+    if not checkRobotNode('map_server', trytimes=1):
+        logger.error('createsite exit! Not found map_server')
+        raise Exception('not found map_server from rosnode')
 
     map_path = os.path.join(config.Map_Dir, sitename)
 
     if os.path.exists(map_path):
         if not forced:
-            logger.info(msg_head + 'createsite exit! choose not to overwrite existed site!')
-            return Stauts_File_Existed
-    # logger.info(description)
+            logger.info('site {} existed! choose not to overwrite existed site!'.format(sitename))
     try:
         deleteRemoteSite(sitename)
         saveMap(map_path)
         createRemoteSite(sitename, description)
     except Exception as e:
-        logger.error(msg_head + 'createsite error! {}'.format(str(e)))
-        raise Exception(msg_head + 'createsite error')
-        return Status_Failed
-
-    return Status_Succeeded
+        logger.error('createsite {} error! {}'.format(sitename, str(e)))
+        raise Exception('createsite {} error! {}'.format(sitename, str(e)))
     
 if __name__ == '__main__':
     sitename = 'test'

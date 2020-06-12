@@ -9,7 +9,7 @@ from wand.image import Image
 
 
 import config
-#from utils.logger import logger
+from utils.turtlebot import shell_cmd
 from utils.logger2 import getLogger
 
 logger = getLogger('map_utils')
@@ -23,7 +23,7 @@ def saveMap(map_path):
     #export map from ros map_server
     mapfilepath = os.path.join(map_path, 'map')
     cmd = 'rosrun map_server map_saver -f {}'.format(mapfilepath)
-    result, output = shell_cmd(cmd)
+    result, _ = shell_cmd(cmd)
     if result == 1:
         logger.error('saveMap: error in running ' + cmd)
         return None

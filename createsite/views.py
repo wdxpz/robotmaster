@@ -31,11 +31,8 @@ def index(request):
             forced = False
 
     try:
-        code = createSite(name, desc, forced)
-        if code == Status_Succeeded:
-            return Response("Succeed, site create!", status=status.HTTP_200_OK)
-        else:
-            return Response("Site Existed, abort for no forced!", status=status.HTTP_202_ACCEPTED)
+        createSite(name, desc, forced)
+        return Response("Succeed, site create!", status=status.HTTP_200_OK)
     except Exception as e:
         logger.error(str(e))
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
