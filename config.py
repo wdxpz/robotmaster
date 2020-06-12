@@ -1,5 +1,6 @@
 
 import os
+import yaml
 from Queue import Queue
 from robotmaster.settings import BASE_DIR
 
@@ -42,26 +43,6 @@ upload_DB = 'robot'
 Table_Name_Robot_Pos = 'robot_poss'
 Table_Name_Robot_Event = 'robot_event'
 
-
-#Task Types:
-Task_Type = {
-    "Type_Inspection": 0,
-    "Tyep_KillAllNavProcess": 10,
-    "Type_SaveMap": 20
-}
-
-#Inspection Status Codes
-Inspection_Status_Codes ={
-    'CMD_SENT': 100,
-    'CDM_ACCEPTED': 110,
-    'INSPECTION_STARTED': 130, 
-    'INSPECTION_FINISHED': 140,
-    'ERR_CMD_PARAMETERS': 200,
-    'ERR_ROBOT_OCCUPIED': 210,
-    'ERR_ROBOT_START': 220,
-    'ERR_INSPECTION_STILL_RUNNING': 230
-}
-
 #Inspection Status Update Entrypoint
 Inspection_Status_Endpoint= 'http://www.bestfly.ml:8000/inspection/'
 
@@ -69,3 +50,11 @@ Inspection_Status_Endpoint= 'http://www.bestfly.ml:8000/inspection/'
 #MSG center entrypoint
 Msg_Center_Endpoint='http://127.0.0.1:8000/tasks/'
 task_msg_queue = Queue()
+
+
+#load constant varibles
+constants_yaml = log_file = os.path.join(os.path.dirname(BASE_DIR), 'constants.yml')
+with open(constants_yaml, "rb") as f:
+    constants_data = yaml.load(f)
+    Task_Type = constants_data['Task_Type']
+    Inspection_Status_Codes = ['Inspection_Status_Codes']
