@@ -22,7 +22,7 @@ def addTaskIntoMsgQueue(data, tasktype=-1):
     if is_error:
         msg = "Failed to upload task data to MSG center! "
         logger.error(msg)
-        raise Exception("Error in upload zipped map file for robot!")
+        raise Exception(msg)
     
     logger.info("Succeeded to upload task data to MSG center!")
 

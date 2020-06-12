@@ -6,7 +6,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from createsite import createSite, Status_Succeeded, Stauts_File_Existed, Status_Failed
+from createsite import createSite
 
 #from utils.logger import logger
 from utils.logger2 import getLogger

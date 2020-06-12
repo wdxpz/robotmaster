@@ -72,7 +72,7 @@ def index(request):
             logger.info(str(e))
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
 
-        addTaskIntoMsgQueue(data, tasktype=Task_Type['Type_Inspection'])
+        addTaskIntoMsgQueue(data, tasktype=Task_Type['Task_Inspection'])
         return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
         
         if not checkMapFile(site_id):

@@ -53,7 +53,7 @@ task_msg_queue = Queue()
 
 
 #load constant varibles
-constants_yaml = log_file = os.path.join(os.path.dirname(BASE_DIR), 'constants.yml')
+constants_yaml = os.path.join(os.path.dirname(BASE_DIR), 'constants.yml')
 with open(constants_yaml, "rb") as f:
     constants_data = yaml.load(f)
     Task_Type = constants_data['Task_Type']
