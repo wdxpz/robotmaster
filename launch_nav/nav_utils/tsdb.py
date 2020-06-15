@@ -60,7 +60,7 @@ class DBHelper():
         try:
             self.client.write_points(records)
         except Exception as e:
-            logger.error('[nav_utils] DB operation: write robot position record error!', e)
+            logger.error('[nav_utils] DB operation: write robot position record error!' + str(e))
     
     def emptyPos(self):
         self.client.query("delete from {};".format(config.Table_Name_Robot_Pos))

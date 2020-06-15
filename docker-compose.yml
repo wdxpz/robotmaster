@@ -7,8 +7,8 @@ services:
     environment:
       - "HOST_OS=linux"
       - "Robotmaster_Service_Port=8001"
-      - "ROS_IP=192.168.27.1"
-      - "ROS_MASTER_URI=http://192.168.27.1:11311"
+      - "ROS_IP=192.168.3.118"
+      - "ROS_MASTER_URI=http://192.168.3.118:11311"
       - "TURTLEBOT3_MODEL=waffle_pi"
     volumes:
       - /home/sw/projects/rosbot:/root/projects
