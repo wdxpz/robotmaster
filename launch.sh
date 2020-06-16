@@ -9,6 +9,16 @@ source /root/catkin_ws/devel/setup.bash
 
 ntpdate -q ntp.ubuntu.com
 
+#turn on bash's job control
+set -m
+
+
 cd /root/projects/robotmaster
 
-python manage.py runserver 0.0.0.0:$Robotmaster_Service_Port
+#start the main process in background
+python manage.py runserver 0.0.0.0:$Robotmaster_Service_Port &
+
+#start the helper process
+cd  ../taskcontroller
+python main.py
+
