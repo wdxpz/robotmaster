@@ -17,7 +17,7 @@ from nav_utils.turtlebot_launch import Turtlebot_Launcher
 from nav_utils.turltlebot_cruise import runRoute
 from nav_utils.turtlebot_robot_status import setRobotWorking, setRobotIdel, isRobotWorking
 
-from config import Nav_Pickle_File, Inspection_Status_Codes, Task_Type
+from config import Nav_Pickle_File, Inspection_Status_Codes, Task_Type, Robot_Model
 from utils.turtlebot import killNavProcess, initROSNode, checkMapFile
 from utils.msg_center import addTaskIntoMsgQueue, getTasksFromMsgQueue
 from utils.logger2 import getLogger
@@ -57,6 +57,16 @@ def index(request):
             msg = 'key inspection_id, site_id and robots required'
             logger.info(msg)
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        for _, robot_paras in data['robots'].items():
+            if set(['model', 'org_pos', 'subtask']) != set(robot_paras.keys()):
+                msg = 'key model, org_pos and subtask required for each robot'
+                logger.info(msg)
+                return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+            if str(robot_paras['model']) not in Robot_Model:
+                msg = 'robot model should be in: {}'.format(Robot_Model)
+                logger.info(msg)
+                return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         
         try: 
             inspection_id = int(data['inspection_id'])

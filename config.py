@@ -53,6 +53,7 @@ with open(constants_yaml, "rb") as f:
     Task_Type = constants_data['Task_Type']
     Inspection_Status_Codes = constants_data['Inspection_Status_Codes']
     Msg_Center_Url = constants_data['Msg_Center']
+    Robot_Model = constants_data['Robot_Model']
 
 #MSG center entrypoint
 Robotmaster_Service_Port=8100
