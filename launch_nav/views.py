@@ -72,7 +72,11 @@ def index(request):
             logger.info(str(e))
             return Response("post json data error!", status=status.HTTP_400_BAD_REQUEST)
 
-        addTaskIntoMsgQueue(data, tasktype=Task_Type['Task_Inspection'])
+        try:
+            addTaskIntoMsgQueue(data, tasktype=Task_Type['Task_Inspection'])
+        except:
+            return Response("Error to upload task to MSG!", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)
         
         if not checkMapFile(site_id):
@@ -150,3 +154,13 @@ def index(request):
             return Response(str(e), status=Inspection_Status_Codes['ERR_ROBOT_START'])
 
     return Response(('post robot_id and subtask to launch robot navigation'), status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def reset(request):
+    try:
+        addTaskIntoMsgQueue(None, tasktype=Task_Type['Task_KillAllNavProcess'])
+    except:
+        return Response("Error to upload task to MSG!", status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return Response("Command Accepted!", status=status.HTTP_202_ACCEPTED)

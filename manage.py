@@ -12,7 +12,7 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "robotmaster.settings")
 
     #kill existed navigation process
-    logger.info('try to kill existed navigation process!')
+ #   logger.info('try to kill existed navigation process!')
  #   killNavProcess()
 
     try:

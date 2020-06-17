@@ -59,3 +59,4 @@ Robotmaster_Service_Port=8100
 if 'Robotmaster_Service_Port' in os.environ.keys():
     Robotmaster_Service_Port = os.environ['Robotmaster_Service_Port']
 Msg_Center_Endpoint=Msg_Center_Url + str(Robotmaster_Service_Port) + '/tasks/'
+task_msg_queue = Queue()
