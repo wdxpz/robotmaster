@@ -46,7 +46,48 @@ export ROS_HOSTNAME=192.168.27.1
 export TURTLEBOT3_MODEL=waffle_pi
 ```
 
-## 2.2 Install robotmaster service
+## 2.2 Install Rosbot 2.0 support
+
+```
+mkdir ~/ros_workspace
+mkdir ~/ros_workspace/src
+cd ~/ros_workspace/src
+catkin_init_workspace
+sudo apt update
+
+git clone https://github.com/husarion/rosbot_description.git
+git clone https://github.com/husarion/rosbot_ekf.git
+
+
+#Install dependencies
+cd ~/ros_workspace
+rosdep install --from-paths src --ignore-src -r -y
+sudo apt-get install ros-kinetic-robot-localization
+
+#compile
+cd ~/ros_workspace
+catkin_make
+
+#install enviroment
+nano ~/.bashrc
+# add: export ~/ros_workspace/devel/setup.sh
+source ~/.bashrc
+
+#copy rosbot config yamls to multirobot_nv package
+cd ~/catkin_ws/src/multirobot_nv/param
+git clone https://github.com/husarion/tutorial_pkg.git
+cd turorial_pkg
+mv config/ ../rosbot_param
+cd ..
+rm -rf turorial_pkg
+```
+
+Implementation reference for Rosbot 2.0
+
+1. [map navigation](https://husarion.com/tutorials/ros-tutorials/9-map-navigation/)
+2. [config files for movebase](https://github.com/husarion/tutorial_pkg/tree/master/config)
+
+## 2.3 Install robotmaster service
 
 * requirements 
 
