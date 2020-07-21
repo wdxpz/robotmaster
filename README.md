@@ -3,7 +3,7 @@
 * wifi network: Chaos
 * robot master: 192.168.27.1 , login: sw/abc123!@# , wifi: Cloud
 * robot nodes:
-  * tb3_0: 192.168.27.2 , ssh: waffle/123456 , wifi: Cloud
+  * tb3_0: 192.168.28.81 , ssh: waffle/123456 , wifi: Chaos
     * wifi enabler: 192.168.28.82 ssh: p1/123456 (wifi: Chaos)
     * bt_enabler_0: 192.168.28.83 ssh:pi/123456 (wifi: Chaos)
   * tb3_1: 192.168.27.3  ssh: robot/robot , wifi: Cloud
