@@ -7,6 +7,7 @@
     * wifi enabler: 192.168.28.82 ssh: p1/123456 (wifi: Chaos)
     * bt_enabler_0: 192.168.28.83 ssh:pi/123456 (wifi: Chaos)
   * tb3_1: 192.168.28.149  ssh: robot/robot , wifi: Chaos
+  * ros2p_0: 192.168.28.77 ssh: husarion/husarion, wifi: Chaos
   
 * to set the static ip address for pi, please refer [for pi](https://electrondust.com/2017/11/25/setting-raspberry-pi-wifi-static-ip-raspbian-stretch-lite/)
 
@@ -50,21 +51,25 @@ export TURTLEBOT3_MODEL=waffle_pi
 
 ## 2.2 Install Rosbot 2.0 support
 
+### update environment and install neccesary packages
+
 ```
-mkdir ~/ros_workspace
-mkdir ~/ros_workspace/src
+mkdir -p ~/ros_workspace/src
 cd ~/ros_workspace/src
 catkin_init_workspace
-sudo apt update
+cd ..
+catkin_make
 
+cd src
 git clone https://github.com/husarion/rosbot_description.git
-git clone https://github.com/husarion/rosbot_ekf.git
+git clone https://github.com/husarion/tutorial_pkg.git
 
-
+sudo apt update
+sudo apt install python-rosdep2
+sudo rosdep init
+rosdep update
 #Install dependencies
-cd ~/ros_workspace
 rosdep install --from-paths src --ignore-src -r -y
-sudo apt-get install ros-kinetic-robot-localization
 
 #compile
 cd ~/ros_workspace
@@ -74,6 +79,11 @@ catkin_make
 nano ~/.bashrc
 # add: export ~/ros_workspace/devel/setup.sh
 source ~/.bashrc
+
+
+### install slam and navigation launch
+
+sudo apt-get install ros-kinetic-robot-localization
 
 #copy rosbot config yamls to multirobot_nv package
 cd ~/catkin_ws/src/multirobot_nv/param
